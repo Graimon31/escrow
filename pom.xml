@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.escrow</groupId>
+  <artifactId>escrow-platform</artifactId>
+  <version>0.1.0</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>backend/deal-service</module>
+    <module>backend/escrow-account-service</module>
+    <module>backend/funding-service</module>
+    <module>backend/fulfillment-service</module>
+    <module>backend/review-service</module>
+    <module>backend/resolution-service</module>
+    <module>backend/dispute-service</module>
+    <module>backend/document-service</module>
+    <module>backend/notification-service</module>
+    <module>backend/audit-service</module>
+    <module>backend/auth-service</module>
+  </modules>
+  <properties>
+    <java.version>21</java.version>
+    <spring.boot.version>3.3.5</spring.boot.version>
+  </properties>
+</project>
