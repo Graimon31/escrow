@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS deals (
+  id UUID PRIMARY KEY,
+  depositor VARCHAR(120) NOT NULL,
+  beneficiary VARCHAR(120) NOT NULL,
+  amount NUMERIC(19,2) NOT NULL,
+  currency VARCHAR(10) NOT NULL,
+  subject TEXT NOT NULL,
+  state VARCHAR(60) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_deals_state ON deals(state);
