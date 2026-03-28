@@ -18,7 +18,7 @@ npm --prefix frontend run build
 ```bash
 ./scripts/smoke-check.sh
 ```
-Проверяет:
+Проверяет (с retry ожиданием готовности сервисов):
 - health endpoint'ы сервисов;
 - Swagger доступность;
 - Frontend/Grafana/Prometheus/Kibana URL.

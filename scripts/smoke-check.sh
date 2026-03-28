@@ -1,18 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+RETRIES="${SMOKE_RETRIES:-30}"
+SLEEP_SECONDS="${SMOKE_SLEEP_SECONDS:-2}"
+
 check_http() {
   local name="$1"
   local url="$2"
+
   echo "Проверка $name -> $url"
-  curl -fsS "$url" >/dev/null
+  local attempt=1
+  while (( attempt <= RETRIES )); do
+    if curl -fsS "$url" >/dev/null; then
+      return 0
+    fi
+    echo "  попытка ${attempt}/${RETRIES} неуспешна, ждём ${SLEEP_SECONDS}с..."
+    sleep "$SLEEP_SECONDS"
+    ((attempt++))
+  done
+
+  echo "Проверка '$name' не пройдена после ${RETRIES} попыток" >&2
+  return 1
 }
 
 check_cmd() {
   local name="$1"
   shift
+
   echo "Проверка $name"
-  "$@" >/dev/null
+  local attempt=1
+  while (( attempt <= RETRIES )); do
+    if "$@" >/dev/null; then
+      return 0
+    fi
+    echo "  попытка ${attempt}/${RETRIES} неуспешна, ждём ${SLEEP_SECONDS}с..."
+    sleep "$SLEEP_SECONDS"
+    ((attempt++))
+  done
+
+  echo "Проверка '$name' не пройдена после ${RETRIES} попыток" >&2
+  return 1
 }
 
 check_cmd "PostgreSQL (pg_isready внутри контейнера)" docker compose exec -T postgres pg_isready -U "${POSTGRES_USER:-escrow}" -d "${POSTGRES_DB:-escrow}"

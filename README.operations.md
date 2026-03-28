@@ -9,6 +9,10 @@
 2. запускает весь стек `docker compose up -d`;
 3. запускает smoke-check и печатает ключевые URL.
 
+Параметры retry для smoke:
+- `SMOKE_RETRIES` (по умолчанию 30)
+- `SMOKE_SLEEP_SECONDS` (по умолчанию 2)
+
 ## Управление окружением
 - Остановка: `./scripts/stop.sh`
 - Полный сброс: `./scripts/reset.sh`
