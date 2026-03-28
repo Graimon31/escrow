@@ -17,7 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         "spring.datasource.url=jdbc:h2:mem:dealdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=none"
+        "spring.jpa.hibernate.ddl-auto=none",
+        "spring.kafka.bootstrap-servers=localhost:9092",
+        "spring.kafka.listener.auto-startup=false"
 })
 class DealServiceTest {
 
@@ -37,6 +39,12 @@ class DealServiceTest {
 
         deal = dealService.openEscrowAccount(deal.getId(), "token");
         assertEquals(DealState.AWAITING_FUNDING, deal.getState());
+
+        dealService.markFundingProcessing(deal.getId());
+        assertEquals(DealState.FUNDING_PROCESSING, dealService.get(deal.getId()).getState());
+
+        dealService.markFundsSecured(deal.getId());
+        assertEquals(DealState.FUNDS_SECURED, dealService.get(deal.getId()).getState());
     }
 
     @Test

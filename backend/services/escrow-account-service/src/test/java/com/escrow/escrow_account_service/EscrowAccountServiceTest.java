@@ -16,7 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         "spring.datasource.url=jdbc:h2:mem:escrowacc;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=none"
+        "spring.jpa.hibernate.ddl-auto=none",
+        "spring.kafka.bootstrap-servers=localhost:9092",
+        "spring.kafka.listener.auto-startup=false"
 })
 class EscrowAccountServiceTest {
 
@@ -29,6 +31,12 @@ class EscrowAccountServiceTest {
         var account = service.open(dealId, new BigDecimal("100.00"), "RUB");
         assertEquals(EscrowAccountState.AWAITING_DEPOSIT, account.getState());
         assertEquals(dealId, account.getDealId());
+
+        service.markDepositInProcess(dealId);
+        assertEquals(EscrowAccountState.DEPOSIT_IN_PROCESS, service.byDeal(dealId).getState());
+
+        service.markHeldInEscrow(dealId);
+        assertEquals(EscrowAccountState.HELD_IN_ESCROW, service.byDeal(dealId).getState());
     }
 
     @Test

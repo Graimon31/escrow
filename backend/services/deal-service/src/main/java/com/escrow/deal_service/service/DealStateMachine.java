@@ -25,4 +25,18 @@ public final class DealStateMachine {
         }
         return DealState.AWAITING_FUNDING;
     }
+
+    public static DealState fundingProcessing(DealState current) {
+        if (current != DealState.AWAITING_FUNDING) {
+            throw new IllegalStateException("FUNDING_PROCESSING возможно только из AWAITING_FUNDING");
+        }
+        return DealState.FUNDING_PROCESSING;
+    }
+
+    public static DealState fundsSecured(DealState current) {
+        if (current != DealState.FUNDING_PROCESSING) {
+            throw new IllegalStateException("FUNDS_SECURED возможно только из FUNDING_PROCESSING");
+        }
+        return DealState.FUNDS_SECURED;
+    }
 }

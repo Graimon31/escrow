@@ -48,6 +48,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
       - "8081:8080"
     healthcheck:
@@ -68,12 +69,16 @@ services:
         condition: service_healthy
       auth-service:
         condition: service_healthy
+      kafka:
+        condition: service_started
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
       APP_ESCROW_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_ESCROW_DB_USER: ${POSTGRES_USER}
       APP_ESCROW_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_KAFKA_FUNDING_TOPIC: escrow.funding.events
     ports:
       - "8082:8080"
     healthcheck:
@@ -96,6 +101,8 @@ services:
         condition: service_healthy
       escrow-account-service:
         condition: service_healthy
+      kafka:
+        condition: service_started
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
@@ -103,8 +110,40 @@ services:
       APP_DEAL_DB_USER: ${POSTGRES_USER}
       APP_DEAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
       APP_ESCROW_ACCOUNT_SERVICE_URL: http://escrow-account-service:8080
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_KAFKA_FUNDING_TOPIC: escrow.funding.events
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  funding-service:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE_NAME: funding-service
+    container_name: escrow-funding-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8080
+      APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      APP_FUNDING_DB_URL: jdbc:postgresql://postgres:5432/escrow
+      APP_FUNDING_DB_USER: ${POSTGRES_USER}
+      APP_FUNDING_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_KAFKA_FUNDING_TOPIC: escrow.funding.events
+    ports:
+      - "8083:8080"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"]
       interval: 10s
@@ -121,11 +160,14 @@ services:
         condition: service_healthy
       deal-service:
         condition: service_healthy
+      funding-service:
+        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_DEAL_SERVICE_URL: http://localhost:8080
       NEXT_PUBLIC_AUTH_SERVICE_URL: http://localhost:8081
+      NEXT_PUBLIC_FUNDING_SERVICE_URL: http://localhost:8083
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
@@ -158,6 +200,8 @@ services:
       deal-service:
         condition: service_healthy
       escrow-account-service:
+        condition: service_healthy
+      funding-service:
         condition: service_healthy
     volumes:
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro

@@ -12,20 +12,20 @@
 ## Шаг 4 — Первый бизнесовый вертикальный срез (deal + escrow-account)
 Статус: выполнен.
 
+## Шаг 5 — Funding slice и первое event-driven взаимодействие
+Статус: выполнен.
+
 Сделано:
-- реализованы `deal-service` и `escrow-account-service` на Spring Boot + JPA + Flyway + Swagger;
-- добавлены миграции БД для таблиц `deals` и `escrow_accounts`;
-- реализованы сущности и state transitions:
-  - Deal: `DRAFT -> AGREED -> ACCOUNT_OPENED -> AWAITING_FUNDING`;
-  - Escrow Account: `OPENED -> AWAITING_DEPOSIT`;
-- реализованы API:
-  - создание/получение/согласование сделки;
-  - открытие счёта эскроу;
-- добавлена валидация запрещённых переходов;
-- обновлён frontend: список сделок, создание сделки, карточка сделки с кнопками переходов;
-- добавлены минимальные тесты state machine и сервисных переходов;
-- docker-compose обновлён для запуска `escrow-account-service`.
+- реализован `funding-service` с mock deposit flow и idempotency;
+- добавлены funding статусы и переходы в deal/escrow состояниях;
+- настроен Kafka topic `escrow.funding.events`;
+- реализована публикация событий из `funding-service`;
+- реализовано потребление событий в `deal-service` и `escrow-account-service`;
+- добавлен audit trail (хранение и API чтения);
+- фронтенд карточки сделки дополнен кнопкой внесения средств и отображением audit trail;
+- docker-compose и smoke-check обновлены под funding-service;
+- добавлены/обновлены тесты для funding/deal/escrow переходов.
 
 Ограничения:
-- funding/fulfillment/dispute пока не реализованы глубоко;
-- нет полноценной интеграции событий Kafka в доменный flow.
+- внешний платёжный шлюз не подключён (используется mock flow);
+- нет гарантированной exactly-once доставки (допустимо для MVP шага).

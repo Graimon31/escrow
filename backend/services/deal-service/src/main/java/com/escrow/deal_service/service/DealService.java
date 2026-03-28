@@ -57,4 +57,18 @@ public class DealService {
         deal.setState(DealStateMachine.awaitFunding(deal.getState()));
         return dealRepository.save(deal);
     }
+
+    @Transactional
+    public void markFundingProcessing(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.fundingProcessing(deal.getState()));
+        dealRepository.save(deal);
+    }
+
+    @Transactional
+    public void markFundsSecured(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.fundsSecured(deal.getState()));
+        dealRepository.save(deal);
+    }
 }

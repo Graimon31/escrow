@@ -20,3 +20,8 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['escrow-account-service:8080']
+
+  - job_name: funding-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['funding-service:8080']

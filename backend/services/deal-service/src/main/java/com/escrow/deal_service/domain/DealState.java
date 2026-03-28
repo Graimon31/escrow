@@ -4,5 +4,7 @@ public enum DealState {
     DRAFT,
     AGREED,
     ACCOUNT_OPENED,
-    AWAITING_FUNDING
+    AWAITING_FUNDING,
+    FUNDING_PROCESSING,
+    FUNDS_SECURED
 }

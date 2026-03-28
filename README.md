@@ -16,46 +16,32 @@
    ./scripts/smoke-check.sh
    ```
 
-## Вертикальный срез сделки (Deal Vertical Slice)
-Реализованный flow состояния сделки:
-- `DRAFT` → `AGREED` → `ACCOUNT_OPENED` → `AWAITING_FUNDING`
+## Funding slice и event-driven поток
+Реализован mock funding flow (без внешнего платёжного шлюза):
+- `AWAITING_FUNDING -> FUNDING_PROCESSING -> FUNDS_SECURED` для сделки;
+- `AWAITING_DEPOSIT -> DEPOSIT_IN_PROCESS -> HELD_IN_ESCROW` для счёта.
 
-### Deal API
-- `POST /api/v1/deals` — создать сделку (роль: DEPOSITOR)
-- `GET /api/v1/deals` — список сделок
-- `GET /api/v1/deals/{id}` — карточка сделки
-- `POST /api/v1/deals/{id}/agree` — согласовать сделку (DEPOSITOR/BENEFICIARY)
-- `POST /api/v1/deals/{id}/open-escrow-account` — открыть счёт эскроу (DEPOSITOR/OPERATOR/ADMIN)
+Kafka topic:
+- `escrow.funding.events`
 
-### Escrow Account API
-- `POST /api/v1/escrow-accounts/open` — открыть счёт эскроу
-- `GET /api/v1/escrow-accounts/by-deal/{dealId}` — получить счёт по id сделки
+### Funding API
+- `POST /api/v1/funding/deposit` — mock внесение средств
+- `GET /api/v1/funding/audit/{dealId}` — audit trail по сделке
 
-### Auth contour
-Тестовые пользователи:
-- `depositor / depositor123` → `DEPOSITOR`
-- `beneficiary / beneficiary123` → `BENEFICIARY`
-- `operator / operator123` → `OPERATOR`
-- `admin / admin123` → `ADMIN`
+### Deal / Escrow API
+- `POST /api/v1/deals/{id}/open-escrow-account`
+- `POST /api/v1/deals/{id}/agree`
+- `POST /api/v1/escrow-accounts/open`
+- `GET /api/v1/escrow-accounts/by-deal/{dealId}`
+
+### UI
+- `/deals` — список + создание сделки
+- `/deals/{id}` — карточка сделки + кнопка «Внести средства (mock)» + audit trail
 
 ## Доступные endpoint после запуска
 - Frontend: http://localhost:3000
-- Auth service: http://localhost:8081 (Swagger: `/swagger-ui.html`)
-- Deal service: http://localhost:8080 (Swagger: `/swagger-ui.html`)
-- Escrow-account service: http://localhost:8082 (Swagger: `/swagger-ui.html`)
-- PostgreSQL: localhost:5432
-- Kafka: localhost:9092
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3001
-- Elasticsearch: http://localhost:9200
-- Kibana: http://localhost:5601
-
-## Остановка
-```bash
-./scripts/stop.sh
-```
-
-## Сброс окружения
-```bash
-./scripts/reset.sh
-```
+- Auth service: http://localhost:8081
+- Deal service: http://localhost:8080
+- Escrow-account service: http://localhost:8082
+- Funding service: http://localhost:8083
+- Swagger: `/swagger-ui.html` на каждом backend сервисе

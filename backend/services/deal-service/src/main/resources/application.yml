@@ -13,6 +13,14 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.value.default.type: com.escrow.deal_service.event.FundingEvent
+        spring.json.trusted.packages: com.escrow.deal_service.event
 
 management:
   endpoints:
@@ -25,6 +33,8 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  kafka:
+    funding-topic: ${APP_KAFKA_FUNDING_TOPIC:escrow.funding.events}
   security:
     jwt-secret: ${APP_AUTH_JWT_SECRET:change-me-in-env-very-secret-key-1234567890}
   clients:

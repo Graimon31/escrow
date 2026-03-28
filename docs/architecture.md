@@ -1,51 +1,41 @@
 # Архитектура проекта (Project Architecture)
 
 ## Текущий этап
-Запускаемый инфраструктурный каркас + auth contour + первый бизнесовый вертикальный срез сделки.
+Запускаемый инфраструктурный каркас + auth contour + deal/escrow vertical slice + funding event-driven slice.
 
-## Контуры микросервисов
-Минимальные сервисы:
-- deal-service
-- escrow-account-service
-- funding-service
-- fulfillment-service
-- review-service
-- resolution-service
-- dispute-service
-- document-service
-- notification-service
-- audit-service
-- auth-service
+## Рабочие сервисы текущего этапа
+- `auth-service`: login, JWT, роли, guards.
+- `deal-service`: создание/согласование сделки, открытие счёта, обработка funding-событий.
+- `escrow-account-service`: открытие счёта и обработка funding-событий.
+- `funding-service`: mock внесение средств, публикация Kafka-событий, audit trail.
 
-Текущее рабочее покрытие:
-- `auth-service`: login, JWT, роли, guards, Swagger;
-- `deal-service`: создание/согласование сделки, переходы состояния, открытие счёта;
-- `escrow-account-service`: открытие счёта эскроу и статус счёта.
+## Event-driven взаимодействие
+Kafka topic:
+- `escrow.funding.events`
 
-## Машины состояний (реализованная часть)
+Поток:
+1. `funding-service` публикует `FUNDING_PROCESSING`.
+2. `deal-service` переводит сделку в `FUNDING_PROCESSING`.
+3. `escrow-account-service` переводит счёт в `DEPOSIT_IN_PROCESS`.
+4. `funding-service` публикует `FUNDS_SECURED`.
+5. `deal-service` переводит сделку в `FUNDS_SECURED`.
+6. `escrow-account-service` переводит счёт в `HELD_IN_ESCROW`.
+
+## Реализованные состояния
 ### Deal
 - DRAFT
 - AGREED
 - ACCOUNT_OPENED
 - AWAITING_FUNDING
+- FUNDING_PROCESSING
+- FUNDS_SECURED
 
 ### Escrow Account
 - OPENED
 - AWAITING_DEPOSIT
+- DEPOSIT_IN_PROCESS
+- HELD_IN_ESCROW
 
-## Хранение данных
-- PostgreSQL
-- миграции Flyway в каждом сервисе:
-  - `deal-service` (`deals`)
-  - `escrow-account-service` (`escrow_accounts`)
-
-## API
-- Swagger/OpenAPI включён для `auth-service`, `deal-service`, `escrow-account-service`.
-
-## Frontend
-- UI на русском языке;
-- реализованы страницы: список сделок, создание сделки, карточка сделки, auth/login, role-guard маршруты.
-
-## Ограничения текущего этапа
-- funding/fulfillment/dispute flow пока не реализованы;
-- без глубокой event-driven интеграции между сервисами.
+## Ограничения
+- flow фондирования mock (без внешнего платёжного шлюза);
+- события обрабатываются at-least-once моделью Kafka (для MVP приемлемо).

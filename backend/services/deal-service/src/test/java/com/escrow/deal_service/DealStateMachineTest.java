@@ -17,6 +17,10 @@ class DealStateMachineTest {
         assertEquals(DealState.ACCOUNT_OPENED, state);
         state = DealStateMachine.awaitFunding(state);
         assertEquals(DealState.AWAITING_FUNDING, state);
+        state = DealStateMachine.fundingProcessing(state);
+        assertEquals(DealState.FUNDING_PROCESSING, state);
+        state = DealStateMachine.fundsSecured(state);
+        assertEquals(DealState.FUNDS_SECURED, state);
     }
 
     @Test
@@ -24,5 +28,7 @@ class DealStateMachineTest {
         assertThrows(IllegalStateException.class, () -> DealStateMachine.agree(DealState.AGREED));
         assertThrows(IllegalStateException.class, () -> DealStateMachine.openAccount(DealState.DRAFT));
         assertThrows(IllegalStateException.class, () -> DealStateMachine.awaitFunding(DealState.AGREED));
+        assertThrows(IllegalStateException.class, () -> DealStateMachine.fundingProcessing(DealState.DRAFT));
+        assertThrows(IllegalStateException.class, () -> DealStateMachine.fundsSecured(DealState.AWAITING_FUNDING));
     }
 }

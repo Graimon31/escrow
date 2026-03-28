@@ -35,4 +35,22 @@ public class EscrowAccountService {
     public EscrowAccount byDeal(UUID dealId) {
         return repository.findByDealId(dealId).orElseThrow(() -> new IllegalArgumentException("Счёт эскроу не найден"));
     }
+
+    public void markDepositInProcess(UUID dealId) {
+        EscrowAccount account = byDeal(dealId);
+        if (account.getState() != EscrowAccountState.AWAITING_DEPOSIT) {
+            throw new IllegalStateException("DEPOSIT_IN_PROCESS возможен только из AWAITING_DEPOSIT");
+        }
+        account.setState(EscrowAccountState.DEPOSIT_IN_PROCESS);
+        repository.save(account);
+    }
+
+    public void markHeldInEscrow(UUID dealId) {
+        EscrowAccount account = byDeal(dealId);
+        if (account.getState() != EscrowAccountState.DEPOSIT_IN_PROCESS) {
+            throw new IllegalStateException("HELD_IN_ESCROW возможен только из DEPOSIT_IN_PROCESS");
+        }
+        account.setState(EscrowAccountState.HELD_IN_ESCROW);
+        repository.save(account);
+    }
 }
