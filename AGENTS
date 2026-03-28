@@ -1,0 +1,180 @@
+# AGENTS.md
+
+## Цель проекта
+Нужно построить локально запускаемый MVP веб-продукта типа escrow-first platform (платформа со счётом эскроу как центральной сущностью продукта), пригодный для:
+- ручного тестирования;
+- автоматических тестов;
+- просмотра API через Swagger UI;
+- просмотра метрик через Grafana;
+- просмотра логов через Kibana.
+
+## Обязательный стек
+### Backend
+- Java
+- Spring Boot
+- Spring Web
+- Spring Security
+- Spring Data JPA
+- Hibernate
+- Gradle
+- springdoc-openapi + Swagger UI
+- Spring Boot Actuator
+- Micrometer
+
+### Frontend
+- TypeScript
+- Next.js
+- React
+- Tailwind CSS
+
+### Data / Infra
+- PostgreSQL
+- Kafka
+- Prometheus
+- Grafana
+- Elasticsearch
+- Kibana
+- Docker
+- Docker Compose
+- GitHub Actions
+
+## Архитектурный принцип
+Проект должен быть микросервисным MVP, а не монолитом.
+
+Минимальный набор сервисов:
+- deal-service
+- escrow-account-service
+- funding-service
+- fulfillment-service
+- review-service
+- resolution-service
+- dispute-service
+- document-service
+- notification-service
+- audit-service
+- auth-service
+
+Допустима поэтапная реализация, но уже созданные границы сервисов не ломать без необходимости.
+
+## Основные бизнес-сущности
+- сделка эскроу (escrow deal)
+- счёт эскроу (escrow account)
+- депонируемая сумма (deposited amount)
+- основание для передачи средств (release condition)
+- исполнение обязательства бенефициаром (beneficiary fulfillment)
+- проверка депонентом (depositor review)
+- итоговый исход (resolution)
+- спор (dispute)
+
+## Машины состояний
+### Deal State Machine
+- DRAFT
+- AWAITING_AGREEMENT
+- AGREED
+- ACCOUNT_OPENED
+- AWAITING_FUNDING
+- FUNDING_PROCESSING
+- FUNDS_SECURED
+- AWAITING_BENEFICIARY_FULFILLMENT
+- AWAITING_DEPOSITOR_REVIEW
+- RELEASE_PENDING
+- RELEASED
+- REFUND_PENDING
+- REFUNDED
+- DISPUTED
+- CLOSED
+
+### Escrow Account State Machine
+- NOT_CREATED
+- OPENED
+- AWAITING_DEPOSIT
+- DEPOSIT_IN_PROCESS
+- HELD_IN_ESCROW
+- RELEASE_AUTHORIZED
+- RELEASED_TO_BENEFICIARY
+- REFUND_AUTHORIZED
+- REFUNDED_TO_DEPOSITOR
+- ON_DISPUTE_HOLD
+- CLOSED
+
+## Роли
+- DEPOSITOR
+- BENEFICIARY
+- OPERATOR
+- ADMIN
+
+## Языковые требования
+Во всех README, документации и архитектурных пояснениях:
+- сначала русское наименование;
+- рядом в скобках английский термин, если он нужен;
+- не перегружать текст англицизмами без пояснения.
+
+Пример:
+- счёт эскроу (escrow account)
+- депонент (depositor)
+- бенефициар (beneficiary)
+- раскрытие счёта (release)
+- возврат средств (refund)
+- спор (dispute)
+
+UI должен быть на русском языке.
+
+## Способ работы
+Работай инкрементально.
+Не пытайся генерировать весь проект за один проход.
+
+На каждом шаге:
+1. сначала прочитай:
+   - AGENTS.md
+   - docs/architecture.md
+   - docs/progress.md
+   - docs/next-step.md
+2. реализуй только текущую цель шага;
+3. не переписывай без нужды уже рабочие части;
+4. после изменений запусти проверки;
+5. обнови:
+   - docs/progress.md
+   - docs/next-step.md
+6. выдай краткий инженерный отчёт.
+
+## Обязательные артефакты проекта
+В репозитории должны существовать:
+- README.md
+- README.requirements.md
+- README.testing.md
+- README.operations.md
+- docs/architecture.md
+- docs/progress.md
+- docs/next-step.md
+
+## Обязательные скрипты
+Должны быть предусмотрены:
+- основной сценарий запуска всего стека одной командой;
+- сценарий остановки;
+- сценарий сброса;
+- smoke-check script;
+- seed script.
+
+## Обязательные проверки
+После каждого значимого шага запускай релевантные проверки:
+- build
+- unit tests
+- integration tests, если затронут backend flow
+- frontend checks / lint / typecheck, если затронут frontend
+- smoke checks, если шаг влияет на запуск окружения
+
+## Правила редактирования
+- предпочитай менять существующие файлы, а не плодить дубликаты;
+- не оставляй фиктивные TODO, если от них ломается запуск;
+- если реализация упрощена ради MVP, явно зафиксируй это в документации;
+- не выводи в чат полный дамп всех файлов, если это не просят явно;
+- отдавай приоритет рабочему состоянию репозитория.
+
+## Формат финального отчёта по каждому шагу
+В конце каждого шага дай:
+- что сделано;
+- какие файлы изменены;
+- какие команды запускались;
+- что сейчас работает;
+- что ещё не реализовано;
+- какой следующий шаг рекомендуется.
