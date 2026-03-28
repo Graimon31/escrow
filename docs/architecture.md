@@ -1,7 +1,7 @@
 # Архитектура проекта (Project Architecture)
 
 ## Текущий этап
-Первый шаг: сформирован запускаемый каркас (skeleton) без полной бизнес-логики.
+Сформирован запускаемый инфраструктурный каркас и реализован рабочий контур аутентификации (auth contour) для MVP.
 
 ## Контуры микросервисов (Microservice Boundaries)
 Минимальные сервисы (границы зафиксированы):
@@ -17,20 +17,35 @@
 - audit-service
 - auth-service
 
-Каждый сервис на текущем шаге содержит:
-- минимальное Spring Boot приложение;
-- endpoint проверки доступности `/api/v1/health`;
-- endpoint Actuator `/actuator/health`.
+Текущее состояние:
+- `auth-service` реализован как рабочий контур login + JWT + role guards + Swagger/OpenAPI;
+- `deal-service` и `frontend` запускаются в compose как skeleton;
+- остальные сервисы пока остаются кодовыми skeleton-модулями.
 
 ## Технологический стек (Technology Stack)
-- Backend: Java 21 + Spring Boot + Gradle.
+- Backend: Java 21 + Spring Boot + Spring Security + Gradle.
 - Frontend: Next.js + TypeScript + Tailwind CSS.
 - Infra: Docker Compose (PostgreSQL, Kafka, Prometheus, Grafana, Elasticsearch, Kibana).
+
+## Контур авторизации (Authorization Contour)
+Роли:
+- DEPOSITOR
+- BENEFICIARY
+- OPERATOR
+- ADMIN
+
+В `auth-service`:
+- login endpoint выдаёт JWT;
+- защищённые endpoint проверяют роли на backend;
+- swagger доступен для тестирования auth API.
+
+Во frontend:
+- middleware и защищённые маршруты cabinet реализуют базовый role guard.
 
 ## Принцип запуска
 Основной локальный сценарий: `./scripts/start-local.sh`.
 
-## Ограничения первого шага
-- Бизнес-сценарии счёта эскроу (escrow account) не реализованы.
-- Межсервисное взаимодействие и события Kafka не реализованы.
-- Базы данных сервисов и миграции не реализованы.
+## Ограничения текущего этапа
+- users пока seed/in-memory, без persistence в БД;
+- бизнес-сценарии escrow deal/account пока не реализованы;
+- межсервисные взаимодействия и state machine домена будут добавлены на следующем шаге.

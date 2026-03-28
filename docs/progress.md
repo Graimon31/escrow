@@ -14,10 +14,21 @@
 Сделано:
 - docker-compose расширен до минимально запускаемого окружения;
 - поднимаются PostgreSQL, Kafka, Prometheus, Grafana, Elasticsearch, Kibana;
-- в compose добавлены backend service skeleton (`deal-service`) и frontend skeleton;
-- smoke-check проверяет доступность инфраструктуры и health endpoint;
-- README обновлён под one-command bootstrap.
+- в compose добавлены backend/frontend skeleton;
+- smoke-check проверяет доступность инфраструктуры и health endpoint.
+
+## Шаг 3 — Auth contour и базовая ролевая модель
+Статус: выполнен.
+
+Сделано:
+- реализован `auth-service` с login endpoint и JWT-аутентификацией для MVP;
+- добавлены seed users с ролями: DEPOSITOR, BENEFICIARY, OPERATOR, ADMIN;
+- добавлены backend role guards (`@PreAuthorize`) на защищённые endpoint;
+- добавлены frontend role guards через middleware и защищённые страницы cabinet;
+- добавлен Swagger/OpenAPI для auth endpoints;
+- добавлены минимальные backend tests для login и ролевых ограничений;
+- compose обновлён для запуска auth-service.
 
 Ограничения:
-- доменная бизнес-логика и межсервисные сценарии не реализованы;
-- остальные backend-сервисы пока существуют как кодовые skeleton, но не запускаются в compose.
+- полноценный бизнесовый workflow escrow ещё не реализован;
+- users пока хранятся в seed-конфиге (in-memory) без БД.

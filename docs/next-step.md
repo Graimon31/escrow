@@ -1,14 +1,11 @@
 # Следующий шаг (Next Step)
 
-## Шаг 3 — Вертикальный срез сделки и счёта эскроу (Deal + Escrow Account Vertical Slice)
+## Шаг 4 — Первый бизнесовый вертикальный срез сделки (Deal Vertical Slice)
 
 Сделать:
-1. Добавить в compose запуск `escrow-account-service` рядом с `deal-service`.
-2. Подключить PostgreSQL-конфигурацию для `deal-service` и `escrow-account-service`.
-3. Добавить миграции БД (Flyway/Liquibase) для минимальных таблиц сделки и счёта.
-4. Реализовать базовые endpoint:
-   - создание сделки в состоянии DRAFT;
-   - согласование до AGREED;
-   - открытие счёта до OPENED.
-5. Добавить springdoc-openapi и Swagger UI для этих двух сервисов.
-6. Добавить unit + integration tests для happy-path вертикального среза.
+1. Подключить `deal-service` к PostgreSQL и добавить миграции БД.
+2. Реализовать создание сделки в состоянии DRAFT.
+3. Реализовать переход сделки в AGREED с проверкой ролей (DEPOSITOR/BENEFICIARY).
+4. Защитить endpoint сделки через JWT из `auth-service`.
+5. Добавить Swagger/OpenAPI для `deal-service`.
+6. Добавить unit и integration tests для happy-path и role-based отказов.

@@ -16,8 +16,9 @@ check_cmd() {
 }
 
 check_cmd "PostgreSQL (pg_isready внутри контейнера)" docker compose exec -T postgres pg_isready -U "${POSTGRES_USER:-escrow}" -d "${POSTGRES_DB:-escrow}"
-check_http "Deal service /api/v1/health" "http://localhost:8080/api/v1/health"
-check_http "Deal service actuator" "http://localhost:8080/actuator/health"
+check_http "Auth service health" "http://localhost:8081/api/v1/health"
+check_http "Auth service swagger" "http://localhost:8081/swagger-ui.html"
+check_http "Deal service health" "http://localhost:8080/api/v1/health"
 check_http "Frontend" "http://localhost:3000"
 check_http "Elasticsearch" "http://localhost:9200"
 check_http "Kibana" "http://localhost:5601/status"

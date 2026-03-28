@@ -16,10 +16,27 @@
    ./scripts/smoke-check.sh
    ```
 
+## Auth contour (контур аутентификации)
+### Тестовые пользователи (seed users)
+- `depositor / depositor123` → роль `DEPOSITOR`
+- `beneficiary / beneficiary123` → роль `BENEFICIARY`
+- `operator / operator123` → роль `OPERATOR`
+- `admin / admin123` → роль `ADMIN`
+
+### Основные endpoint
+- Login: `POST http://localhost:8081/api/v1/auth/login`
+- Profile: `GET http://localhost:8081/api/v1/auth/me` (Bearer token)
+- Role-guard demo:
+  - `GET /api/v1/auth/admin-zone` (только ADMIN)
+  - `GET /api/v1/auth/operator-zone` (OPERATOR, ADMIN)
+  - `GET /api/v1/auth/depositor-zone` (DEPOSITOR)
+  - `GET /api/v1/auth/beneficiary-zone` (BENEFICIARY)
+- Swagger UI auth-service: `http://localhost:8081/swagger-ui.html`
+
 ## Доступные endpoint после запуска
 - Frontend skeleton: http://localhost:3000
+- Auth service health: http://localhost:8081/api/v1/health
 - Deal service health: http://localhost:8080/api/v1/health
-- Deal service actuator health: http://localhost:8080/actuator/health
 - PostgreSQL: localhost:5432
 - Kafka: localhost:9092
 - Prometheus: http://localhost:9090
@@ -39,6 +56,6 @@
 
 ## Структура
 - `backend/services` — каркасы backend-сервисов (Gradle + Spring Boot).
-- `frontend` — каркас Next.js + TypeScript + Tailwind CSS.
-- `docker-compose.yml` — инфраструктура + поднимаемые skeleton-сервисы (`deal-service`, `frontend`).
+- `frontend` — каркас Next.js + TypeScript + Tailwind CSS + role guards для MVP auth.
+- `docker-compose.yml` — инфраструктура + поднимаемые skeleton-сервисы (`auth-service`, `deal-service`, `frontend`).
 - `docs` — архитектура, прогресс, следующий шаг.
