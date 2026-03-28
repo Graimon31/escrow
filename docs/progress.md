@@ -41,11 +41,23 @@
 - [x] Test config: Kafka disabled, DealEventProducer and RestClient mocked
 - [x] `./gradlew build -x test` — BUILD SUCCESSFUL (all modules)
 
+### Step 8: Frontend — Authentication Pages (2026-03-28)
+- [x] API client (`src/lib/api.ts`): typed fetch wrapper, register/login/refresh/getMe
+- [x] Auth context (`src/contexts/auth-context.tsx`): AuthProvider, useAuth hook, localStorage JWT storage
+- [x] Login page (`/login`): email/password form, error handling, redirect to dashboard
+- [x] Register page (`/register`): full name/email/password/role form, DEPOSITOR/BENEFICIARY selection
+- [x] Dashboard page (`/dashboard`): protected route, user info cards, empty deals placeholder
+- [x] Navbar component: logo, user name + role badge, logout button
+- [x] Protected route component: auth check, loading spinner, redirect to /login
+- [x] Root layout: AuthProvider wrapper, updated metadata
+- [x] Home page (`/`): redirect to /dashboard or /login based on auth state
+- [x] `npm run build` — BUILD SUCCESSFUL, `npm run lint` — no errors
+
 ## Pending Steps
 
 | Step | Name | Status |
 |------|------|--------|
-| 8 | Frontend — auth pages | ⬜ |
+| 8 | Frontend — auth pages | ✅ |
 | 9 | Frontend — deal flow UI | ⬜ |
 | 10 | Notification service | ⬜ |
 | 11 | Operator + admin roles | ⬜ |
