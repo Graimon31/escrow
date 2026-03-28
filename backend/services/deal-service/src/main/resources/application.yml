@@ -17,10 +17,7 @@ spring:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.value.default.type: com.escrow.deal_service.event.FundingEvent
-        spring.json.trusted.packages: com.escrow.deal_service.event
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 management:
   endpoints:
@@ -35,6 +32,8 @@ springdoc:
 app:
   kafka:
     funding-topic: ${APP_KAFKA_FUNDING_TOPIC:escrow.funding.events}
+    fulfillment-topic: ${APP_KAFKA_FULFILLMENT_TOPIC:escrow.fulfillment.events}
+    review-topic: ${APP_KAFKA_REVIEW_TOPIC:escrow.review.events}
   security:
     jwt-secret: ${APP_AUTH_JWT_SECRET:change-me-in-env-very-secret-key-1234567890}
   clients:

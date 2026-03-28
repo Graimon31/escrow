@@ -4,9 +4,37 @@ server:
 spring:
   application:
     name: fulfillment-service
+  datasource:
+    url: ${APP_FULFILLMENT_DB_URL:jdbc:postgresql://postgres:5432/escrow}
+    username: ${APP_FULFILLMENT_DB_USER:escrow}
+    password: ${APP_FULFILLMENT_DB_PASSWORD:escrow}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  security:
+    jwt-secret: ${APP_AUTH_JWT_SECRET:change-me-in-env-very-secret-key-1234567890}
+  kafka:
+    fulfillment-topic: ${APP_KAFKA_FULFILLMENT_TOPIC:escrow.fulfillment.events}
+  storage:
+    root: ${APP_STORAGE_ROOT:./data/documents}

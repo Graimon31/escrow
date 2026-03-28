@@ -74,6 +74,8 @@ export default function DealCardPage() {
         <p><b>Статус:</b> {deal.state}</p>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
+        <a className="rounded border px-4 py-2" href={`/fulfillment/${params.id}`}>Экран исполнения</a>
+        <a className="rounded border px-4 py-2" href={`/review/${params.id}`}>Экран проверки</a>
         <button onClick={onAgree} className="rounded bg-emerald-600 px-4 py-2 text-white">Согласовать (AGREED)</button>
         <button onClick={onOpenAccount} className="rounded bg-indigo-600 px-4 py-2 text-white">Открыть счёт эскроу</button>
         <button onClick={onDeposit} className="rounded bg-amber-600 px-4 py-2 text-white">Внести средства (mock)</button>

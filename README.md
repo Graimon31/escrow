@@ -1,47 +1,32 @@
 # Платформа эскроу-first (Escrow-first Platform)
 
-Локально запускаемый MVP-каркас микросервисной платформы с центральной сущностью счёта эскроу (escrow account).
+## Быстрый старт
+```bash
+cp .env.example .env
+./scripts/start-local.sh
+./scripts/smoke-check.sh
+```
 
-## Быстрый старт (Quick Start)
-1. Скопировать переменные окружения:
-   ```bash
-   cp .env.example .env
-   ```
-2. Поднять весь каркас одной командой:
-   ```bash
-   ./scripts/start-local.sh
-   ```
-3. Выполнить smoke-check:
-   ```bash
-   ./scripts/smoke-check.sh
-   ```
+## Реализованные срезы
+- auth (JWT + роли)
+- deal + escrow-account + funding (Kafka)
+- fulfillment + review
 
-## Funding slice и event-driven поток
-Реализован mock funding flow (без внешнего платёжного шлюза):
-- `AWAITING_FUNDING -> FUNDING_PROCESSING -> FUNDS_SECURED` для сделки;
-- `AWAITING_DEPOSIT -> DEPOSIT_IN_PROCESS -> HELD_IN_ESCROW` для счёта.
+## Новые MVP-возможности шага
+- Бенефициар может заявить исполнение: `POST /api/v1/fulfillment/submit`
+- Метаданные документов хранятся локально + в БД
+- Депонент может принять решение: `accept/reject/correction/dispute`
+- История действий доступна: `GET /api/v1/review/history/{dealId}`
 
-Kafka topic:
-- `escrow.funding.events`
+## UI
+- `/fulfillment/{dealId}` — экран исполнения обязательства
+- `/review/{dealId}` — экран проверки депонентом
+- `/deals/{dealId}` — карточка сделки со ссылками на экраны и audit trail
 
-### Funding API
-- `POST /api/v1/funding/deposit` — mock внесение средств
-- `GET /api/v1/funding/audit/{dealId}` — audit trail по сделке
-
-### Deal / Escrow API
-- `POST /api/v1/deals/{id}/open-escrow-account`
-- `POST /api/v1/deals/{id}/agree`
-- `POST /api/v1/escrow-accounts/open`
-- `GET /api/v1/escrow-accounts/by-deal/{dealId}`
-
-### UI
-- `/deals` — список + создание сделки
-- `/deals/{id}` — карточка сделки + кнопка «Внести средства (mock)» + audit trail
-
-## Доступные endpoint после запуска
-- Frontend: http://localhost:3000
-- Auth service: http://localhost:8081
-- Deal service: http://localhost:8080
-- Escrow-account service: http://localhost:8082
-- Funding service: http://localhost:8083
-- Swagger: `/swagger-ui.html` на каждом backend сервисе
+## Основные backend адреса
+- auth-service: `http://localhost:8081`
+- deal-service: `http://localhost:8080`
+- escrow-account-service: `http://localhost:8082`
+- funding-service: `http://localhost:8083`
+- fulfillment-service: `http://localhost:8084`
+- review-service: `http://localhost:8085`

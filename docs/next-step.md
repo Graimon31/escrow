@@ -1,10 +1,10 @@
 # Следующий шаг (Next Step)
 
-## Шаг 6 — Fulfillment и проверка депонентом (Fulfillment + Review Slice)
+## Шаг 7 — Resolution/Release/Refund slice
 
 Сделать:
-1. Реализовать `fulfillment-service` и переход в `AWAITING_BENEFICIARY_FULFILLMENT`.
-2. Реализовать `review-service` и переход в `AWAITING_DEPOSITOR_REVIEW`.
-3. Добавить события Kafka для fulfillment/review этапов.
-4. Добавить базовый UI для подтверждения исполнения и проверки.
-5. Добавить тесты переходов и role-guards для новых endpoint.
+1. Добавить `resolution-service` с итоговыми исходами (release/refund/dispute resolution).
+2. Довести состояния сделки до RELEASED/REFUNDED/CLOSED.
+3. Реализовать базовый payout/refund mock flow.
+4. Добавить уведомления (notification-service) о ключевых исходах.
+5. Добавить интеграционные тесты сквозного happy-path до RELEASED.

@@ -6,15 +6,15 @@ scrape_configs:
     static_configs:
       - targets: ['prometheus:9090']
 
-  - job_name: deal-service
-    metrics_path: /actuator/prometheus
-    static_configs:
-      - targets: ['deal-service:8080']
-
   - job_name: auth-service
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['auth-service:8080']
+
+  - job_name: deal-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['deal-service:8080']
 
   - job_name: escrow-account-service
     metrics_path: /actuator/prometheus
@@ -25,3 +25,13 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['funding-service:8080']
+
+  - job_name: fulfillment-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['fulfillment-service:8080']
+
+  - job_name: review-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['review-service:8080']

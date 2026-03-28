@@ -11,7 +11,7 @@ function hasToken(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  if (path.startsWith('/cabinet') || path.startsWith('/deals')) {
+  if (path.startsWith('/cabinet') || path.startsWith('/deals') || path.startsWith('/fulfillment') || path.startsWith('/review')) {
     if (!hasToken(request)) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -38,5 +38,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/cabinet/:path*', '/deals/:path*']
+  matcher: ['/cabinet/:path*', '/deals/:path*', '/fulfillment/:path*', '/review/:path*']
 };

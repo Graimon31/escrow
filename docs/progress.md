@@ -1,31 +1,27 @@
 # Прогресс реализации (Progress)
 
-## Шаг 1 — Базовый каркас репозитория
-Статус: выполнен.
+## Шаги 1-5
+Статус: выполнены (каркас, infra, auth, deal/escrow, funding event-driven).
 
-## Шаг 2 — Рабочий infrastructure skeleton
-Статус: выполнен.
-
-## Шаг 3 — Auth contour и базовая ролевая модель
-Статус: выполнен.
-
-## Шаг 4 — Первый бизнесовый вертикальный срез (deal + escrow-account)
-Статус: выполнен.
-
-## Шаг 5 — Funding slice и первое event-driven взаимодействие
+## Шаг 6 — Fulfillment + Review slice
 Статус: выполнен.
 
 Сделано:
-- реализован `funding-service` с mock deposit flow и idempotency;
-- добавлены funding статусы и переходы в deal/escrow состояниях;
-- настроен Kafka topic `escrow.funding.events`;
-- реализована публикация событий из `funding-service`;
-- реализовано потребление событий в `deal-service` и `escrow-account-service`;
-- добавлен audit trail (хранение и API чтения);
-- фронтенд карточки сделки дополнен кнопкой внесения средств и отображением audit trail;
-- docker-compose и smoke-check обновлены под funding-service;
-- добавлены/обновлены тесты для funding/deal/escrow переходов.
+- реализован `fulfillment-service`:
+  - заявка исполнения бенефициаром;
+  - хранение metadata документов (local storage path + БД);
+  - публикация Kafka события `FULFILLMENT_SUBMITTED`;
+- реализован `review-service`:
+  - действия `ACCEPT`, `REJECT`, `CORRECTION`, `DISPUTE`;
+  - история действий по сделке;
+  - публикация review-событий в Kafka;
+- `deal-service` расширен обработкой fulfillment/review событий и переходов состояний;
+- добавлены UI-экраны:
+  - исполнение обязательства;
+  - проверка депонентом;
+- обновлены docker-compose, smoke-check, prometheus конфигурация;
+- добавлены тесты для fulfillment/review и обновлены тесты переходов deal.
 
 Ограничения:
-- внешний платёжный шлюз не подключён (используется mock flow);
-- нет гарантированной exactly-once доставки (допустимо для MVP шага).
+- хранение документов упрощено до metadata + local path;
+- enterprise-level workflow и внешний DMS не подключены.

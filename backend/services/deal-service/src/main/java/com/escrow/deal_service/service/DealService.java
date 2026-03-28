@@ -71,4 +71,33 @@ public class DealService {
         deal.setState(DealStateMachine.fundsSecured(deal.getState()));
         dealRepository.save(deal);
     }
+
+
+    @Transactional
+    public void markAwaitingBeneficiaryFulfillment(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.awaitingBeneficiaryFulfillment(deal.getState()));
+        dealRepository.save(deal);
+    }
+
+    @Transactional
+    public void markAwaitingDepositorReview(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.awaitingDepositorReview(deal.getState()));
+        dealRepository.save(deal);
+    }
+
+    @Transactional
+    public void markReleasePending(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.releasePending(deal.getState()));
+        dealRepository.save(deal);
+    }
+
+    @Transactional
+    public void markDisputed(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.disputed(deal.getState()));
+        dealRepository.save(deal);
+    }
 }

@@ -45,6 +45,12 @@ class DealServiceTest {
 
         dealService.markFundsSecured(deal.getId());
         assertEquals(DealState.FUNDS_SECURED, dealService.get(deal.getId()).getState());
+
+        dealService.markAwaitingDepositorReview(deal.getId());
+        assertEquals(DealState.AWAITING_DEPOSITOR_REVIEW, dealService.get(deal.getId()).getState());
+
+        dealService.markReleasePending(deal.getId());
+        assertEquals(DealState.RELEASE_PENDING, dealService.get(deal.getId()).getState());
     }
 
     @Test
