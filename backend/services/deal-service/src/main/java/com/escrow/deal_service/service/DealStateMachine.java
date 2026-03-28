@@ -53,4 +53,25 @@ public final class DealStateMachine {
         if (current != DealState.AWAITING_DEPOSITOR_REVIEW) throw new IllegalStateException("DISPUTED возможен только из AWAITING_DEPOSITOR_REVIEW");
         return DealState.DISPUTED;
     }
+
+    public static DealState released(DealState current) {
+        if (current != DealState.RELEASE_PENDING && current != DealState.DISPUTED) {
+            throw new IllegalStateException("RELEASED возможен только из RELEASE_PENDING или DISPUTED");
+        }
+        return DealState.RELEASED;
+    }
+
+    public static DealState refunded(DealState current) {
+        if (current != DealState.DISPUTED && current != DealState.AWAITING_DEPOSITOR_REVIEW) {
+            throw new IllegalStateException("REFUNDED возможен только из DISPUTED или AWAITING_DEPOSITOR_REVIEW");
+        }
+        return DealState.REFUNDED;
+    }
+
+    public static DealState closed(DealState current) {
+        if (current != DealState.RELEASED && current != DealState.REFUNDED) {
+            throw new IllegalStateException("CLOSED возможен только из RELEASED или REFUNDED");
+        }
+        return DealState.CLOSED;
+    }
 }

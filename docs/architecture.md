@@ -4,33 +4,32 @@
 Запускаемый MVP с working slices:
 - auth;
 - deal + escrow-account + funding (event-driven);
-- fulfillment + review.
+- fulfillment + review;
+- dispute + resolution + финальные исходы (release/refund).
 
-## Fulfillment/Review contour
-### Fulfillment
-- endpoint для заявления исполнения бенефициаром;
-- metadata документов хранится в БД;
-- local storage path фиксируется для MVP.
-
-### Review
-- действия депонента:
-  - ACCEPT
-  - REJECT
-  - CORRECTION
-  - DISPUTE
-- история review-действий сохраняется и доступна API.
-
-## Event-driven взаимодействие
+## Event-driven контуры
 Kafka topics:
 - `escrow.funding.events`
 - `escrow.fulfillment.events`
 - `escrow.review.events`
+- `escrow.dispute.events`
+- `escrow.resolution.events`
 
-Deal-service обрабатывает:
-- funding события;
-- fulfillment событие;
-- review события.
+Deal-service обрабатывает события funding/fulfillment/review/resolution и переводит сделку в финальные состояния.
+Escrow-account-service обрабатывает funding/resolution события и поддерживает консистентные финальные состояния счёта.
+Dispute-service ведёт реестр споров и автоматически закрывает OPEN-спор после resolution события.
 
-## Ограничения
-- документы без полноценного object storage (только metadata + local path);
-- workflow намеренно упрощён до MVP.
+## Финальные статусы
+### Deal
+- `RELEASED`
+- `REFUNDED`
+- `CLOSED` (техническое финальное состояние, доступно для следующего шага)
+
+### EscrowAccount
+- `RELEASED_TO_BENEFICIARY`
+- `REFUNDED_TO_DEPOSITOR`
+- `CLOSED` (резерв под следующий шаг)
+
+## Ограничения шага
+- фокус на корректность state transitions и консистентность;
+- второстепенные сценарии (сложные SLA/таймеры/мульти-эскалации) не включены.

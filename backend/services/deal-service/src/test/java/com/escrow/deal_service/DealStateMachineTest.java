@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DealStateMachineTest {
 
     @Test
-    void validHappyPathShouldPass() {
+    void releaseHappyPathShouldPass() {
         DealState state = DealState.DRAFT;
         state = DealStateMachine.agree(state);
         state = DealStateMachine.openAccount(state);
@@ -18,7 +18,17 @@ class DealStateMachineTest {
         state = DealStateMachine.fundsSecured(state);
         state = DealStateMachine.awaitingDepositorReview(state);
         state = DealStateMachine.releasePending(state);
-        assertEquals(DealState.RELEASE_PENDING, state);
+        state = DealStateMachine.released(state);
+        assertEquals(DealState.RELEASED, state);
+    }
+
+    @Test
+    void refundFromDisputeShouldPass() {
+        DealState state = DealState.FUNDS_SECURED;
+        state = DealStateMachine.awaitingDepositorReview(state);
+        state = DealStateMachine.disputed(state);
+        state = DealStateMachine.refunded(state);
+        assertEquals(DealState.REFUNDED, state);
     }
 
     @Test
@@ -33,5 +43,6 @@ class DealStateMachineTest {
     void forbiddenTransitionsShouldFail() {
         assertThrows(IllegalStateException.class, () -> DealStateMachine.releasePending(DealState.DRAFT));
         assertThrows(IllegalStateException.class, () -> DealStateMachine.disputed(DealState.FUNDS_SECURED));
+        assertThrows(IllegalStateException.class, () -> DealStateMachine.released(DealState.AWAITING_DEPOSITOR_REVIEW));
     }
 }

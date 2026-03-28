@@ -53,4 +53,23 @@ public class EscrowAccountService {
         account.setState(EscrowAccountState.HELD_IN_ESCROW);
         repository.save(account);
     }
+
+    public void markReleasedToBeneficiary(UUID dealId) {
+        EscrowAccount account = byDeal(dealId);
+        if (account.getState() != EscrowAccountState.HELD_IN_ESCROW) {
+            throw new IllegalStateException("RELEASED_TO_BENEFICIARY возможен только из HELD_IN_ESCROW");
+        }
+        account.setState(EscrowAccountState.RELEASED_TO_BENEFICIARY);
+        repository.save(account);
+    }
+
+    public void markRefundedToDepositor(UUID dealId) {
+        EscrowAccount account = byDeal(dealId);
+        if (account.getState() != EscrowAccountState.HELD_IN_ESCROW) {
+            throw new IllegalStateException("REFUNDED_TO_DEPOSITOR возможен только из HELD_IN_ESCROW");
+        }
+        account.setState(EscrowAccountState.REFUNDED_TO_DEPOSITOR);
+        repository.save(account);
+    }
 }
+

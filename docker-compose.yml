@@ -61,6 +61,7 @@ services:
       APP_ESCROW_DB_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       APP_KAFKA_FUNDING_TOPIC: ${APP_KAFKA_FUNDING_TOPIC}
+      APP_KAFKA_RESOLUTION_TOPIC: ${APP_KAFKA_RESOLUTION_TOPIC}
     ports: ["8082:8080"]
     healthcheck: { test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"], interval: 10s, timeout: 5s, retries: 20 }
 
@@ -140,6 +141,43 @@ services:
     ports: ["8085:8080"]
     healthcheck: { test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"], interval: 10s, timeout: 5s, retries: 20 }
 
+  dispute-service:
+    build: { context: ., dockerfile: backend/Dockerfile, args: { SERVICE_NAME: dispute-service } }
+    container_name: escrow-dispute-service
+    depends_on:
+      postgres: { condition: service_healthy }
+      auth-service: { condition: service_healthy }
+      kafka: { condition: service_started }
+    environment:
+      SERVER_PORT: 8080
+      APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      APP_DISPUTE_DB_URL: jdbc:postgresql://postgres:5432/escrow
+      APP_DISPUTE_DB_USER: ${POSTGRES_USER}
+      APP_DISPUTE_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_KAFKA_DISPUTE_TOPIC: ${APP_KAFKA_DISPUTE_TOPIC}
+      APP_KAFKA_RESOLUTION_TOPIC: ${APP_KAFKA_RESOLUTION_TOPIC}
+    ports: ["8086:8080"]
+    healthcheck: { test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"], interval: 10s, timeout: 5s, retries: 20 }
+
+  resolution-service:
+    build: { context: ., dockerfile: backend/Dockerfile, args: { SERVICE_NAME: resolution-service } }
+    container_name: escrow-resolution-service
+    depends_on:
+      postgres: { condition: service_healthy }
+      auth-service: { condition: service_healthy }
+      kafka: { condition: service_started }
+    environment:
+      SERVER_PORT: 8080
+      APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      APP_RESOLUTION_DB_URL: jdbc:postgresql://postgres:5432/escrow
+      APP_RESOLUTION_DB_USER: ${POSTGRES_USER}
+      APP_RESOLUTION_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_KAFKA_RESOLUTION_TOPIC: ${APP_KAFKA_RESOLUTION_TOPIC}
+    ports: ["8087:8080"]
+    healthcheck: { test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"], interval: 10s, timeout: 5s, retries: 20 }
+
   frontend:
     build: { context: ., dockerfile: frontend/Dockerfile }
     container_name: escrow-frontend
@@ -149,6 +187,8 @@ services:
       funding-service: { condition: service_healthy }
       fulfillment-service: { condition: service_healthy }
       review-service: { condition: service_healthy }
+      dispute-service: { condition: service_healthy }
+      resolution-service: { condition: service_healthy }
     ports: ["3000:3000"]
     environment:
       NEXT_PUBLIC_DEAL_SERVICE_URL: http://localhost:8080
@@ -156,6 +196,8 @@ services:
       NEXT_PUBLIC_FUNDING_SERVICE_URL: http://localhost:8083
       NEXT_PUBLIC_FULFILLMENT_SERVICE_URL: http://localhost:8084
       NEXT_PUBLIC_REVIEW_SERVICE_URL: http://localhost:8085
+      NEXT_PUBLIC_DISPUTE_SERVICE_URL: http://localhost:8086
+      NEXT_PUBLIC_RESOLUTION_SERVICE_URL: http://localhost:8087
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
@@ -181,6 +223,8 @@ services:
       funding-service: { condition: service_healthy }
       fulfillment-service: { condition: service_healthy }
       review-service: { condition: service_healthy }
+      dispute-service: { condition: service_healthy }
+      resolution-service: { condition: service_healthy }
     volumes: ["./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
     ports: ["9090:9090"]
 

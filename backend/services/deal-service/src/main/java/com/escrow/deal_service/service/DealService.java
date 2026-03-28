@@ -100,4 +100,25 @@ public class DealService {
         deal.setState(DealStateMachine.disputed(deal.getState()));
         dealRepository.save(deal);
     }
+    @Transactional
+    public void markReleased(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.released(deal.getState()));
+        dealRepository.save(deal);
+    }
+
+    @Transactional
+    public void markRefunded(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.refunded(deal.getState()));
+        dealRepository.save(deal);
+    }
+
+    @Transactional
+    public void markClosed(UUID id) {
+        Deal deal = get(id);
+        deal.setState(DealStateMachine.closed(deal.getState()));
+        dealRepository.save(deal);
+    }
+
 }

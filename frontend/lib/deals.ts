@@ -5,7 +5,7 @@ export type Deal = {
   currency: string;
   depositorUsername: string;
   beneficiaryUsername: string;
-  state: 'DRAFT' | 'AGREED' | 'ACCOUNT_OPENED' | 'AWAITING_FUNDING' | 'FUNDING_PROCESSING' | 'FUNDS_SECURED';
+  state: 'DRAFT' | 'AGREED' | 'ACCOUNT_OPENED' | 'AWAITING_FUNDING' | 'FUNDING_PROCESSING' | 'FUNDS_SECURED' | 'AWAITING_BENEFICIARY_FULFILLMENT' | 'AWAITING_DEPOSITOR_REVIEW' | 'RELEASE_PENDING' | 'DISPUTED' | 'RELEASED' | 'REFUNDED' | 'CLOSED';
 };
 
 const baseUrl = process.env.NEXT_PUBLIC_DEAL_SERVICE_URL || 'http://localhost:8080';

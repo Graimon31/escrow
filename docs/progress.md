@@ -1,27 +1,28 @@
 # Прогресс реализации (Progress)
 
-## Шаги 1-5
-Статус: выполнены (каркас, infra, auth, deal/escrow, funding event-driven).
+## Шаги 1-6
+Статус: выполнены (каркас, infra, auth, deal/escrow, funding event-driven, fulfillment/review).
 
-## Шаг 6 — Fulfillment + Review slice
+## Шаг 7 — Resolution/Release/Refund/Dispute
 Статус: выполнен.
 
 Сделано:
-- реализован `fulfillment-service`:
-  - заявка исполнения бенефициаром;
-  - хранение metadata документов (local storage path + БД);
-  - публикация Kafka события `FULFILLMENT_SUBMITTED`;
-- реализован `review-service`:
-  - действия `ACCEPT`, `REJECT`, `CORRECTION`, `DISPUTE`;
-  - история действий по сделке;
-  - публикация review-событий в Kafka;
-- `deal-service` расширен обработкой fulfillment/review событий и переходов состояний;
+- реализован `resolution-service`:
+  - принятие финального исхода `RELEASE | REFUND`;
+  - хранение истории решений;
+  - публикация Kafka-событий `FUNDS_RELEASED | FUNDS_REFUNDED`;
+- реализован `dispute-service`:
+  - открытие спора;
+  - хранение истории споров;
+  - автоматическое закрытие OPEN-спора по resolution-событию;
+- `deal-service` расширен финальными переходами: `RELEASED` / `REFUNDED`;
+- `escrow-account-service` расширен финальными переходами: `RELEASED_TO_BENEFICIARY` / `REFUNDED_TO_DEPOSITOR`;
 - добавлены UI-экраны:
-  - исполнение обязательства;
-  - проверка депонентом;
-- обновлены docker-compose, smoke-check, prometheus конфигурация;
-- добавлены тесты для fulfillment/review и обновлены тесты переходов deal.
+  - `/dispute/{dealId}`;
+  - `/outcome/{dealId}`;
+- обновлены infra/docs/tests.
 
-Ограничения:
-- хранение документов упрощено до metadata + local path;
-- enterprise-level workflow и внешний DMS не подключены.
+Проверены сценарии:
+- release;
+- refund;
+- dispute.

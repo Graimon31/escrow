@@ -11,17 +11,24 @@ cp .env.example .env
 - auth (JWT + роли)
 - deal + escrow-account + funding (Kafka)
 - fulfillment + review
+- dispute + resolution + final outcomes (release/refund)
 
 ## Новые MVP-возможности шага
-- Бенефициар может заявить исполнение: `POST /api/v1/fulfillment/submit`
-- Метаданные документов хранятся локально + в БД
-- Депонент может принять решение: `accept/reject/correction/dispute`
-- История действий доступна: `GET /api/v1/review/history/{dealId}`
+- Открытие спора: `POST /api/v1/disputes/open`
+- Финальное решение: `POST /api/v1/resolution/decide`
+- История споров/решений:
+  - `GET /api/v1/disputes/{dealId}`
+  - `GET /api/v1/resolution/history/{dealId}`
+- Финальные состояния:
+  - сделка: `RELEASED` / `REFUNDED`
+  - счёт: `RELEASED_TO_BENEFICIARY` / `REFUNDED_TO_DEPOSITOR`
 
 ## UI
 - `/fulfillment/{dealId}` — экран исполнения обязательства
 - `/review/{dealId}` — экран проверки депонентом
-- `/deals/{dealId}` — карточка сделки со ссылками на экраны и audit trail
+- `/dispute/{dealId}` — экран спора
+- `/outcome/{dealId}` — экран финального исхода
+- `/deals/{dealId}` — карточка сделки со ссылками на экраны
 
 ## Основные backend адреса
 - auth-service: `http://localhost:8081`
@@ -30,3 +37,5 @@ cp .env.example .env
 - funding-service: `http://localhost:8083`
 - fulfillment-service: `http://localhost:8084`
 - review-service: `http://localhost:8085`
+- dispute-service: `http://localhost:8086`
+- resolution-service: `http://localhost:8087`

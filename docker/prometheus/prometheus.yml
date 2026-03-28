@@ -35,3 +35,13 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['review-service:8080']
+
+  - job_name: dispute-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['dispute-service:8080']
+
+  - job_name: resolution-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['resolution-service:8080']

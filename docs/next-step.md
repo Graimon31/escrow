@@ -1,10 +1,10 @@
 # Следующий шаг (Next Step)
 
-## Шаг 7 — Resolution/Release/Refund slice
+## Шаг 8 — Notification/Audit hardening + close flow
 
 Сделать:
-1. Добавить `resolution-service` с итоговыми исходами (release/refund/dispute resolution).
-2. Довести состояния сделки до RELEASED/REFUNDED/CLOSED.
-3. Реализовать базовый payout/refund mock flow.
-4. Добавить уведомления (notification-service) о ключевых исходах.
-5. Добавить интеграционные тесты сквозного happy-path до RELEASED.
+1. Подключить `notification-service` к событиям dispute/resolution.
+2. Добавить автоматический переход deal/account в `CLOSED` после подтверждённого завершения расчётов.
+3. Вынести payout/refund mock в отдельный payment-adapter интерфейс.
+4. Добавить интеграционные end-to-end тесты полного цикла с Kafka/Testcontainers.
+5. Расширить audit trail межсервисной корреляцией (`traceId`, `idempotencyKey`).

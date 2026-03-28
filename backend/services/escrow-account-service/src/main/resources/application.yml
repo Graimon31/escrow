@@ -32,5 +32,6 @@ springdoc:
 app:
   kafka:
     funding-topic: ${APP_KAFKA_FUNDING_TOPIC:escrow.funding.events}
+    resolution-topic: ${APP_KAFKA_RESOLUTION_TOPIC:escrow.resolution.events}
   security:
     jwt-secret: ${APP_AUTH_JWT_SECRET:change-me-in-env-very-secret-key-1234567890}

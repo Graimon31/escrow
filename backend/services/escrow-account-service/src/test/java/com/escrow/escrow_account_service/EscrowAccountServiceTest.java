@@ -37,6 +37,19 @@ class EscrowAccountServiceTest {
 
         service.markHeldInEscrow(dealId);
         assertEquals(EscrowAccountState.HELD_IN_ESCROW, service.byDeal(dealId).getState());
+
+        service.markReleasedToBeneficiary(dealId);
+        assertEquals(EscrowAccountState.RELEASED_TO_BENEFICIARY, service.byDeal(dealId).getState());
+    }
+
+    @Test
+    void shouldMoveToRefundedState() {
+        UUID dealId = UUID.randomUUID();
+        service.open(dealId, new BigDecimal("200.00"), "RUB");
+        service.markDepositInProcess(dealId);
+        service.markHeldInEscrow(dealId);
+        service.markRefundedToDepositor(dealId);
+        assertEquals(EscrowAccountState.REFUNDED_TO_DEPOSITOR, service.byDeal(dealId).getState());
     }
 
     @Test
