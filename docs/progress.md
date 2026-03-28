@@ -17,21 +17,29 @@
 - [x] Version catalog `gradle/libs.versions.toml` with Spring Boot 3.4.1, Spring Cloud 2024.0.0
 - [x] Root `build.gradle.kts` with shared config (Java 21, Actuator, Lombok, JUnit 5)
 - [x] `settings.gradle.kts` including 5 modules
-- [x] api-gateway: Spring Cloud Gateway (reactive), port 8080
-- [x] auth-service: Spring Web, port 8081
-- [x] deal-service: Spring Web, port 8082
-- [x] payment-service: Spring Web, port 8083
-- [x] notification-service: Spring Web, port 8084
-- [x] Frontend: Next.js 14, TypeScript, Tailwind CSS, App Router, port 3000
-- [x] `.gitignore` for Java/Gradle/Node/IDE
-- [x] `./gradlew build` — BUILD SUCCESSFUL (26 tasks)
+- [x] 5 Spring Boot modules with minimal Application classes
+- [x] Frontend: Next.js 14 + TypeScript + Tailwind CSS
+- [x] `./gradlew build` — BUILD SUCCESSFUL
 - [x] `cd frontend && npm run build` — BUILD SUCCESSFUL
+
+### Step 2: Docker Compose Infrastructure Layer (2026-03-28)
+- [x] `docker-compose.yml` with PostgreSQL 16, Zookeeper, Kafka (Bitnami)
+- [x] `init-db/init.sql` — creates 4 schemas: auth, deals, payments, notifications
+- [x] Kafka: dual listeners (PLAINTEXT for inter-service, EXTERNAL for host at :9093)
+- [x] Dockerfiles for all 5 Java services (multi-stage: temurin:21-jdk → temurin:21-jre)
+- [x] Dockerfile for frontend (multi-stage: node:22 build → standalone)
+- [x] Next.js configured with `output: "standalone"` for Docker
+- [x] All service containers with healthchecks, depends_on, env vars
+- [x] Environment variables for datasource URLs and Kafka bootstrap servers
+- [x] `docker compose config` — valid (syntax OK)
+- [x] `./gradlew build` — still passes
+- [x] `npm run build` — still passes
+- [ ] Docker runtime verification deferred (no Docker daemon in this env)
 
 ## Pending Steps
 
 | Step | Name | Status |
 |------|------|--------|
-| 2 | Docker Compose infrastructure layer | ⬜ |
 | 3 | Auth service — registration + JWT | ⬜ |
 | 4 | API Gateway — routing + JWT validation | ⬜ |
 | 5 | Deal service — create + read deals | ⬜ |

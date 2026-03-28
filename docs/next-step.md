@@ -1,27 +1,35 @@
-# Next Step: Step 2 — Docker Compose Infrastructure Layer
+# Next Step: Step 3 — Auth Service: Registration and JWT Login
 
 ## Goal
-All infrastructure runs locally via Docker Compose. PostgreSQL with per-service schemas, Kafka with Zookeeper.
+Users can register, login, and receive JWT tokens. Auth service connects to PostgreSQL.
 
 ## Tasks
-1. Create `docker-compose.yml` with PostgreSQL 16, Kafka (Bitnami), Zookeeper
-2. Create `init-db/init.sql` to create schemas: `auth`, `deals`, `payments`, `notifications`
-3. Add Dockerfiles for each Java service (multi-stage: gradle build → eclipse-temurin:21-jre)
-4. Add Dockerfile for frontend (multi-stage: npm build → node:22-alpine)
-5. Add service containers to docker-compose.yml with correct ports and depends_on
-6. Configure services' `application.yml` with datasource URLs for Dockerized Postgres
+1. Add dependencies to auth-service: Spring Security, Spring Data JPA, Flyway, PostgreSQL, jjwt
+2. Create Flyway migration `V1__create_users_table.sql` in `auth` schema
+3. Implement `User` entity, `UserRepository`
+4. Implement `JwtProvider` (access token 15min, refresh token 7d)
+5. Implement `AuthService` (register, login, refresh, me)
+6. Implement `AuthController` with endpoints:
+   - `POST /api/auth/register`
+   - `POST /api/auth/login`
+   - `POST /api/auth/refresh`
+   - `GET /api/auth/me`
+7. Configure Spring Security (permit auth endpoints, secure others)
+8. Add `application-docker.yml` with Postgres datasource
+9. Write integration tests with Testcontainers
 
 ## Verification
 ```bash
-docker compose up -d postgres kafka zookeeper     # infra starts
-docker compose exec postgres psql -U escrow -c '\dn'  # schemas exist
-docker compose up -d                               # all services start
-curl http://localhost:8080/actuator/health          # gateway responds
-curl http://localhost:8081/actuator/health          # auth responds
+./gradlew :auth-service:test          # tests pass
+./gradlew :auth-service:bootRun       # starts with local Postgres
+curl -X POST localhost:8081/api/auth/register -H 'Content-Type: application/json' \
+  -d '{"email":"test@test.com","password":"password","fullName":"Test User","role":"DEPOSITOR"}'
+curl -X POST localhost:8081/api/auth/login -H 'Content-Type: application/json' \
+  -d '{"email":"test@test.com","password":"password"}'
 ```
 
 ## Expected Outcome
-- `docker compose up` brings up entire stack
-- PostgreSQL has 4 schemas ready
-- Kafka broker is reachable on :9092
-- All 5 Java services + frontend accessible on their ports
+- User registration with BCrypt password hashing
+- JWT access + refresh tokens returned on login
+- `/api/auth/me` returns user info with valid Bearer token
+- Flyway creates `auth.users` and `auth.refresh_tokens` tables automatically
