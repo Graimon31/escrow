@@ -1,0 +1,12 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: funding-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
