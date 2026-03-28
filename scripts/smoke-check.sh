@@ -1,17 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-check() {
+check_http() {
   local name="$1"
   local url="$2"
   echo "Проверка $name -> $url"
   curl -fsS "$url" >/dev/null
 }
 
-check "PostgreSQL порт" "http://localhost:5432" || true
-check "Elasticsearch" "http://localhost:9200"
-check "Kibana" "http://localhost:5601/status"
-check "Prometheus" "http://localhost:9090/-/healthy"
-check "Grafana" "http://localhost:3001/api/health"
+check_cmd() {
+  local name="$1"
+  shift
+  echo "Проверка $name"
+  "$@" >/dev/null
+}
 
-echo "Smoke-check завершён."
+check_cmd "PostgreSQL (pg_isready внутри контейнера)" docker compose exec -T postgres pg_isready -U "${POSTGRES_USER:-escrow}" -d "${POSTGRES_DB:-escrow}"
+check_http "Deal service /api/v1/health" "http://localhost:8080/api/v1/health"
+check_http "Deal service actuator" "http://localhost:8080/actuator/health"
+check_http "Frontend" "http://localhost:3000"
+check_http "Elasticsearch" "http://localhost:9200"
+check_http "Kibana" "http://localhost:5601/status"
+check_http "Prometheus" "http://localhost:9090/-/healthy"
+check_http "Grafana" "http://localhost:3001/api/health"
+
+echo "Smoke-check завершён успешно."

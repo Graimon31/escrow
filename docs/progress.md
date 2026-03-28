@@ -1,15 +1,23 @@
 # Прогресс реализации (Progress)
 
-## Шаг 1 — Каркас проекта
+## Шаг 1 — Базовый каркас репозитория
+Статус: выполнен.
+
+Результат:
+- созданы структуры backend/frontend/docs/scripts;
+- зафиксированы Gradle и Tailwind CSS;
+- определены сервисные границы.
+
+## Шаг 2 — Рабочий infrastructure skeleton
 Статус: выполнен.
 
 Сделано:
-- создан базовый каркас backend/frontend/infra;
-- зафиксированы Gradle (backend) и Tailwind CSS (frontend);
-- созданы скрипты запуска, остановки, сброса, smoke-check;
-- добавлены минимальные health endpoints в backend-сервисы;
-- добавлен начальный README с quick start.
+- docker-compose расширен до минимально запускаемого окружения;
+- поднимаются PostgreSQL, Kafka, Prometheus, Grafana, Elasticsearch, Kibana;
+- в compose добавлены backend service skeleton (`deal-service`) и frontend skeleton;
+- smoke-check проверяет доступность инфраструктуры и health endpoint;
+- README обновлён под one-command bootstrap.
 
 Ограничения:
-- полная бизнес-логика escrow-first платформы не реализована;
-- seed script пока не реализован (будет добавлен на следующем шаге).
+- доменная бизнес-логика и межсервисные сценарии не реализованы;
+- остальные backend-сервисы пока существуют как кодовые skeleton, но не запускаются в compose.
