@@ -5,6 +5,7 @@ dependencies {
     implementation(rootProject.libs.flyway.core)
     implementation(rootProject.libs.flyway.postgresql)
     implementation(rootProject.libs.postgresql)
+    implementation(rootProject.libs.spring.kafka)
 
     testImplementation(platform(rootProject.libs.testcontainers.bom))
     testImplementation(rootProject.libs.testcontainers.junit)

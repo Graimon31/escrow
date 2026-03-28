@@ -66,6 +66,58 @@ public class DealController {
         }
     }
 
+    @PostMapping("/{id}/fund")
+    public ResponseEntity<?> fundDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        try {
+            return ResponseEntity.ok(dealService.fundDeal(id, userId, userRole));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/deliver")
+    public ResponseEntity<?> deliverDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        try {
+            return ResponseEntity.ok(dealService.deliverDeal(id, userId, userRole));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/confirm")
+    public ResponseEntity<?> confirmDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        try {
+            return ResponseEntity.ok(dealService.confirmDeal(id, userId, userRole));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancelDeal(
             @PathVariable UUID id,

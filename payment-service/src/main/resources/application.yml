@@ -19,6 +19,8 @@ spring:
   flyway:
     schemas: payments
     default-schema: payments
+  kafka:
+    bootstrap-servers: localhost:9093
 
 management:
   endpoints:

@@ -1,24 +1,22 @@
-# Next Step: Step 7 — Deal-Payment Kafka Integration
+# Next Step: Step 8 — Frontend: Authentication Pages
 
 ## Goal
-Deal state transitions trigger payment operations via Kafka events. Full happy path works end-to-end.
+Users can register and login via the web UI. JWT stored, protected routes, dashboard skeleton.
 
 ## Tasks
-1. Add Spring Kafka dependency to deal-service and payment-service
-2. Kafka topics: `deal-events`, `payment-events`
-3. Deal-service:
-   - `DealEventProducer`: publishes events on state transitions
-   - `PaymentEventConsumer`: listens for payment confirmations
-   - New endpoints: `POST /api/deals/{id}/fund`, `POST /api/deals/{id}/deliver`, `POST /api/deals/{id}/confirm`
-4. Payment-service:
-   - `DealEventConsumer`: listens for deal fund/confirm events → hold/release
-   - `PaymentEventProducer`: publishes hold/release confirmations
-5. Idempotency keys on all events (deal_id + event_type)
-6. Integration test for full happy path
+1. Create API client module (`lib/api.ts`) — talks to gateway at localhost:8080
+2. Auth context/provider (`contexts/auth-context.tsx`) — JWT storage, user state
+3. Pages:
+   - `/login` — email/password form, login call, redirect to dashboard
+   - `/register` — email/password/fullName/role form, register call
+   - `/dashboard` — skeleton with user info, empty deal list placeholder
+4. Protected route middleware (redirect to /login if no token)
+5. Layout with navigation bar (logo, user menu, logout)
+6. Tailwind styling for all components
 
 ## Verification
 ```bash
-./gradlew build -x test
-# Full happy path via curl:
-# register 2 users → login → create deal → fund → deliver → confirm → COMPLETED
+cd frontend && npm run build     # builds successfully
+cd frontend && npm run dev       # starts at :3000
+# Manual: register → login → see dashboard → logout → redirect to /login
 ```

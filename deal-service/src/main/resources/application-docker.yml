@@ -1,0 +1,7 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+
+services:
+  payment-service:
+    url: http://payment-service:8083
