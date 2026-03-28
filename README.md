@@ -16,27 +16,33 @@
    ./scripts/smoke-check.sh
    ```
 
-## Auth contour (контур аутентификации)
-### Тестовые пользователи (seed users)
-- `depositor / depositor123` → роль `DEPOSITOR`
-- `beneficiary / beneficiary123` → роль `BENEFICIARY`
-- `operator / operator123` → роль `OPERATOR`
-- `admin / admin123` → роль `ADMIN`
+## Вертикальный срез сделки (Deal Vertical Slice)
+Реализованный flow состояния сделки:
+- `DRAFT` → `AGREED` → `ACCOUNT_OPENED` → `AWAITING_FUNDING`
 
-### Основные endpoint
-- Login: `POST http://localhost:8081/api/v1/auth/login`
-- Profile: `GET http://localhost:8081/api/v1/auth/me` (Bearer token)
-- Role-guard demo:
-  - `GET /api/v1/auth/admin-zone` (только ADMIN)
-  - `GET /api/v1/auth/operator-zone` (OPERATOR, ADMIN)
-  - `GET /api/v1/auth/depositor-zone` (DEPOSITOR)
-  - `GET /api/v1/auth/beneficiary-zone` (BENEFICIARY)
-- Swagger UI auth-service: `http://localhost:8081/swagger-ui.html`
+### Deal API
+- `POST /api/v1/deals` — создать сделку (роль: DEPOSITOR)
+- `GET /api/v1/deals` — список сделок
+- `GET /api/v1/deals/{id}` — карточка сделки
+- `POST /api/v1/deals/{id}/agree` — согласовать сделку (DEPOSITOR/BENEFICIARY)
+- `POST /api/v1/deals/{id}/open-escrow-account` — открыть счёт эскроу (DEPOSITOR/OPERATOR/ADMIN)
+
+### Escrow Account API
+- `POST /api/v1/escrow-accounts/open` — открыть счёт эскроу
+- `GET /api/v1/escrow-accounts/by-deal/{dealId}` — получить счёт по id сделки
+
+### Auth contour
+Тестовые пользователи:
+- `depositor / depositor123` → `DEPOSITOR`
+- `beneficiary / beneficiary123` → `BENEFICIARY`
+- `operator / operator123` → `OPERATOR`
+- `admin / admin123` → `ADMIN`
 
 ## Доступные endpoint после запуска
-- Frontend skeleton: http://localhost:3000
-- Auth service health: http://localhost:8081/api/v1/health
-- Deal service health: http://localhost:8080/api/v1/health
+- Frontend: http://localhost:3000
+- Auth service: http://localhost:8081 (Swagger: `/swagger-ui.html`)
+- Deal service: http://localhost:8080 (Swagger: `/swagger-ui.html`)
+- Escrow-account service: http://localhost:8082 (Swagger: `/swagger-ui.html`)
 - PostgreSQL: localhost:5432
 - Kafka: localhost:9092
 - Prometheus: http://localhost:9090
@@ -53,9 +59,3 @@
 ```bash
 ./scripts/reset.sh
 ```
-
-## Структура
-- `backend/services` — каркасы backend-сервисов (Gradle + Spring Boot).
-- `frontend` — каркас Next.js + TypeScript + Tailwind CSS + role guards для MVP auth.
-- `docker-compose.yml` — инфраструктура + поднимаемые skeleton-сервисы (`auth-service`, `deal-service`, `frontend`).
-- `docs` — архитектура, прогресс, следующий шаг.

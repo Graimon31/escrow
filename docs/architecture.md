@@ -1,10 +1,10 @@
 # Архитектура проекта (Project Architecture)
 
 ## Текущий этап
-Сформирован запускаемый инфраструктурный каркас и реализован рабочий контур аутентификации (auth contour) для MVP.
+Запускаемый инфраструктурный каркас + auth contour + первый бизнесовый вертикальный срез сделки.
 
-## Контуры микросервисов (Microservice Boundaries)
-Минимальные сервисы (границы зафиксированы):
+## Контуры микросервисов
+Минимальные сервисы:
 - deal-service
 - escrow-account-service
 - funding-service
@@ -17,35 +17,35 @@
 - audit-service
 - auth-service
 
-Текущее состояние:
-- `auth-service` реализован как рабочий контур login + JWT + role guards + Swagger/OpenAPI;
-- `deal-service` и `frontend` запускаются в compose как skeleton;
-- остальные сервисы пока остаются кодовыми skeleton-модулями.
+Текущее рабочее покрытие:
+- `auth-service`: login, JWT, роли, guards, Swagger;
+- `deal-service`: создание/согласование сделки, переходы состояния, открытие счёта;
+- `escrow-account-service`: открытие счёта эскроу и статус счёта.
 
-## Технологический стек (Technology Stack)
-- Backend: Java 21 + Spring Boot + Spring Security + Gradle.
-- Frontend: Next.js + TypeScript + Tailwind CSS.
-- Infra: Docker Compose (PostgreSQL, Kafka, Prometheus, Grafana, Elasticsearch, Kibana).
+## Машины состояний (реализованная часть)
+### Deal
+- DRAFT
+- AGREED
+- ACCOUNT_OPENED
+- AWAITING_FUNDING
 
-## Контур авторизации (Authorization Contour)
-Роли:
-- DEPOSITOR
-- BENEFICIARY
-- OPERATOR
-- ADMIN
+### Escrow Account
+- OPENED
+- AWAITING_DEPOSIT
 
-В `auth-service`:
-- login endpoint выдаёт JWT;
-- защищённые endpoint проверяют роли на backend;
-- swagger доступен для тестирования auth API.
+## Хранение данных
+- PostgreSQL
+- миграции Flyway в каждом сервисе:
+  - `deal-service` (`deals`)
+  - `escrow-account-service` (`escrow_accounts`)
 
-Во frontend:
-- middleware и защищённые маршруты cabinet реализуют базовый role guard.
+## API
+- Swagger/OpenAPI включён для `auth-service`, `deal-service`, `escrow-account-service`.
 
-## Принцип запуска
-Основной локальный сценарий: `./scripts/start-local.sh`.
+## Frontend
+- UI на русском языке;
+- реализованы страницы: список сделок, создание сделки, карточка сделки, auth/login, role-guard маршруты.
 
 ## Ограничения текущего этапа
-- users пока seed/in-memory, без persistence в БД;
-- бизнес-сценарии escrow deal/account пока не реализованы;
-- межсервисные взаимодействия и state machine домена будут добавлены на следующем шаге.
+- funding/fulfillment/dispute flow пока не реализованы;
+- без глубокой event-driven интеграции между сервисами.

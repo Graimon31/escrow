@@ -11,11 +11,13 @@ function hasToken(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  if (path.startsWith('/cabinet')) {
+  if (path.startsWith('/cabinet') || path.startsWith('/deals')) {
     if (!hasToken(request)) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
+  }
 
+  if (path.startsWith('/cabinet')) {
     const role = getRole(request);
 
     if (path.startsWith('/cabinet/admin') && role !== 'ADMIN') {
@@ -36,5 +38,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/cabinet/:path*']
+  matcher: ['/cabinet/:path*', '/deals/:path*']
 };

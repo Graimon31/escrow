@@ -8,6 +8,7 @@ export default function HomePage() {
       <div className="mt-6 flex gap-3">
         <Link className="rounded bg-blue-600 px-4 py-2 text-white" href="/login">Войти</Link>
         <a className="rounded border px-4 py-2" href="http://localhost:8081/swagger-ui.html">Swagger auth-service</a>
+              <Link className="rounded border px-4 py-2" href="/deals">Список сделок</Link>
       </div>
     </main>
   );

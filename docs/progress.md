@@ -3,32 +3,29 @@
 ## Шаг 1 — Базовый каркас репозитория
 Статус: выполнен.
 
-Результат:
-- созданы структуры backend/frontend/docs/scripts;
-- зафиксированы Gradle и Tailwind CSS;
-- определены сервисные границы.
-
 ## Шаг 2 — Рабочий infrastructure skeleton
 Статус: выполнен.
-
-Сделано:
-- docker-compose расширен до минимально запускаемого окружения;
-- поднимаются PostgreSQL, Kafka, Prometheus, Grafana, Elasticsearch, Kibana;
-- в compose добавлены backend/frontend skeleton;
-- smoke-check проверяет доступность инфраструктуры и health endpoint.
 
 ## Шаг 3 — Auth contour и базовая ролевая модель
 Статус: выполнен.
 
+## Шаг 4 — Первый бизнесовый вертикальный срез (deal + escrow-account)
+Статус: выполнен.
+
 Сделано:
-- реализован `auth-service` с login endpoint и JWT-аутентификацией для MVP;
-- добавлены seed users с ролями: DEPOSITOR, BENEFICIARY, OPERATOR, ADMIN;
-- добавлены backend role guards (`@PreAuthorize`) на защищённые endpoint;
-- добавлены frontend role guards через middleware и защищённые страницы cabinet;
-- добавлен Swagger/OpenAPI для auth endpoints;
-- добавлены минимальные backend tests для login и ролевых ограничений;
-- compose обновлён для запуска auth-service.
+- реализованы `deal-service` и `escrow-account-service` на Spring Boot + JPA + Flyway + Swagger;
+- добавлены миграции БД для таблиц `deals` и `escrow_accounts`;
+- реализованы сущности и state transitions:
+  - Deal: `DRAFT -> AGREED -> ACCOUNT_OPENED -> AWAITING_FUNDING`;
+  - Escrow Account: `OPENED -> AWAITING_DEPOSIT`;
+- реализованы API:
+  - создание/получение/согласование сделки;
+  - открытие счёта эскроу;
+- добавлена валидация запрещённых переходов;
+- обновлён frontend: список сделок, создание сделки, карточка сделки с кнопками переходов;
+- добавлены минимальные тесты state machine и сервисных переходов;
+- docker-compose обновлён для запуска `escrow-account-service`.
 
 Ограничения:
-- полноценный бизнесовый workflow escrow ещё не реализован;
-- users пока хранятся в seed-конфиге (in-memory) без БД.
+- funding/fulfillment/dispute пока не реализованы глубоко;
+- нет полноценной интеграции событий Kafka в доменный flow.

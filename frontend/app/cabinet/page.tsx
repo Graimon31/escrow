@@ -25,6 +25,7 @@ export default function CabinetPage() {
         <Link className="rounded border px-3 py-2" href="/cabinet/operator">Зона OPERATOR</Link>
         <Link className="rounded border px-3 py-2" href="/cabinet/depositor">Зона DEPOSITOR</Link>
         <Link className="rounded border px-3 py-2" href="/cabinet/beneficiary">Зона BENEFICIARY</Link>
+        <Link className="rounded border px-3 py-2" href="/deals">Сделки</Link>
       </div>
     </main>
   );

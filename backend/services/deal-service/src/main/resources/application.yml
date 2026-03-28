@@ -4,9 +4,28 @@ server:
 spring:
   application:
     name: deal-service
+  datasource:
+    url: ${APP_DEAL_DB_URL:jdbc:postgresql://postgres:5432/escrow}
+    username: ${APP_DEAL_DB_USER:escrow}
+    password: ${APP_DEAL_DB_PASSWORD:escrow}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  security:
+    jwt-secret: ${APP_AUTH_JWT_SECRET:change-me-in-env-very-secret-key-1234567890}
+  clients:
+    escrow-account-service-url: ${APP_ESCROW_ACCOUNT_SERVICE_URL:http://escrow-account-service:8080}
