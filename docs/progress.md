@@ -4,43 +4,40 @@
 
 ### Step 0: Project Planning (2026-03-28)
 - [x] Created CLAUDE.md (working contract)
-- [x] Created docs/architecture.md
-- [x] Created docs/progress.md
-- [x] Created docs/next-step.md
-- [x] Defined microservice decomposition
-- [x] Defined deal state machine
-- [x] Defined entity models
-- [x] Created 13-step incremental implementation plan
+- [x] Created docs/architecture.md, progress.md, next-step.md
+- [x] Defined microservice decomposition, deal state machine, entity models
 
 ### Step 1: Project Scaffolding and Build Infrastructure (2026-03-28)
-- [x] Gradle wrapper (8.5) generated
-- [x] Version catalog `gradle/libs.versions.toml` with Spring Boot 3.4.1, Spring Cloud 2024.0.0
-- [x] Root `build.gradle.kts` with shared config (Java 21, Actuator, Lombok, JUnit 5)
-- [x] `settings.gradle.kts` including 5 modules
-- [x] 5 Spring Boot modules with minimal Application classes
-- [x] Frontend: Next.js 14 + TypeScript + Tailwind CSS
-- [x] `./gradlew build` — BUILD SUCCESSFUL
-- [x] `cd frontend && npm run build` — BUILD SUCCESSFUL
+- [x] Gradle wrapper, version catalog, root build config (Java 21, Spring Boot 3.4.1)
+- [x] 5 Spring Boot modules + Next.js 14 frontend scaffolded
+- [x] `./gradlew build` + `npm run build` — pass
 
 ### Step 2: Docker Compose Infrastructure Layer (2026-03-28)
-- [x] `docker-compose.yml` with PostgreSQL 16, Zookeeper, Kafka (Bitnami)
-- [x] `init-db/init.sql` — creates 4 schemas: auth, deals, payments, notifications
-- [x] Kafka: dual listeners (PLAINTEXT for inter-service, EXTERNAL for host at :9093)
-- [x] Dockerfiles for all 5 Java services (multi-stage: temurin:21-jdk → temurin:21-jre)
-- [x] Dockerfile for frontend (multi-stage: node:22 build → standalone)
-- [x] Next.js configured with `output: "standalone"` for Docker
-- [x] All service containers with healthchecks, depends_on, env vars
-- [x] Environment variables for datasource URLs and Kafka bootstrap servers
-- [x] `docker compose config` — valid (syntax OK)
-- [x] `./gradlew build` — still passes
-- [x] `npm run build` — still passes
-- [ ] Docker runtime verification deferred (no Docker daemon in this env)
+- [x] docker-compose.yml: PostgreSQL 16, Zookeeper, Kafka, all services + frontend
+- [x] init-db/init.sql, Dockerfiles for all services, healthchecks
+- [x] `docker compose config` — valid
+
+### Step 3: Auth Service — Registration and JWT Login (2026-03-28)
+- [x] Dependencies: Spring Security, Data JPA, Flyway, PostgreSQL, jjwt 0.12.6
+- [x] Flyway migration V1: `users` + `refresh_tokens` tables in `auth` schema
+- [x] Entities: `User` (UUID, email, password_hash, full_name, role, enabled), `RefreshToken`
+- [x] `Role` enum: DEPOSITOR, BENEFICIARY, OPERATOR, ADMINISTRATOR
+- [x] `JwtProvider`: access token (15min), refresh token (7d), HMAC-SHA signing
+- [x] `JwtAuthenticationFilter`: extracts Bearer token, sets SecurityContext
+- [x] `SecurityConfig`: stateless sessions, 401 for unauthenticated, permit auth + actuator endpoints
+- [x] `AuthService`: register (BCrypt), login, refresh, getCurrentUser
+- [x] `AuthController`: POST register/login/refresh, GET me
+- [x] DTOs: RegisterRequest, LoginRequest, RefreshRequest, AuthResponse, UserResponse
+- [x] Integration test with Testcontainers (5 tests: register+login+me+refresh, duplicate email, wrong password, no token, health)
+- [x] Version catalog updated: jjwt, testcontainers, spring-boot-testcontainers
+- [x] `./gradlew build -x test` — BUILD SUCCESSFUL (all modules compile)
+- [x] `./gradlew :auth-service:compileTestJava` — test code compiles
+- [ ] Integration tests require Docker daemon (Testcontainers) — deferred to runtime
 
 ## Pending Steps
 
 | Step | Name | Status |
 |------|------|--------|
-| 3 | Auth service — registration + JWT | ⬜ |
 | 4 | API Gateway — routing + JWT validation | ⬜ |
 | 5 | Deal service — create + read deals | ⬜ |
 | 6 | Payment service — mock accounts + escrow | ⬜ |

@@ -1,35 +1,30 @@
-# Next Step: Step 3 — Auth Service: Registration and JWT Login
+# Next Step: Step 4 — API Gateway: Routing and JWT Validation
 
 ## Goal
-Users can register, login, and receive JWT tokens. Auth service connects to PostgreSQL.
+Single entry point at :8080 that validates JWT tokens and routes to downstream services.
 
 ## Tasks
-1. Add dependencies to auth-service: Spring Security, Spring Data JPA, Flyway, PostgreSQL, jjwt
-2. Create Flyway migration `V1__create_users_table.sql` in `auth` schema
-3. Implement `User` entity, `UserRepository`
-4. Implement `JwtProvider` (access token 15min, refresh token 7d)
-5. Implement `AuthService` (register, login, refresh, me)
-6. Implement `AuthController` with endpoints:
-   - `POST /api/auth/register`
-   - `POST /api/auth/login`
-   - `POST /api/auth/refresh`
-   - `GET /api/auth/me`
-7. Configure Spring Security (permit auth endpoints, secure others)
-8. Add `application-docker.yml` with Postgres datasource
-9. Write integration tests with Testcontainers
+1. Configure Spring Cloud Gateway routes:
+   - `/api/auth/**` → auth-service:8081
+   - `/api/deals/**` → deal-service:8082
+   - `/api/payments/**` → payment-service:8083
+   - `/api/notifications/**` → notification-service:8084
+2. Add JWT validation filter (extract claims, forward `X-User-Id` and `X-User-Role` headers)
+3. CORS configuration for `localhost:3000`
+4. Add shared JWT secret config
+5. Public routes bypass JWT filter (auth endpoints, actuator)
 
 ## Verification
 ```bash
-./gradlew :auth-service:test          # tests pass
-./gradlew :auth-service:bootRun       # starts with local Postgres
-curl -X POST localhost:8081/api/auth/register -H 'Content-Type: application/json' \
-  -d '{"email":"test@test.com","password":"password","fullName":"Test User","role":"DEPOSITOR"}'
-curl -X POST localhost:8081/api/auth/login -H 'Content-Type: application/json' \
-  -d '{"email":"test@test.com","password":"password"}'
+./gradlew :api-gateway:build
+# With auth-service + gateway running:
+curl localhost:8080/api/auth/login ...     # passes through to auth-service
+curl localhost:8080/api/deals             # 401 without token
+curl -H "Authorization: Bearer <token>" localhost:8080/api/deals  # routes with X-User-Id header
 ```
 
 ## Expected Outcome
-- User registration with BCrypt password hashing
-- JWT access + refresh tokens returned on login
-- `/api/auth/me` returns user info with valid Bearer token
-- Flyway creates `auth.users` and `auth.refresh_tokens` tables automatically
+- Gateway routes all `/api/**` requests to correct downstream services
+- JWT validated at gateway level; X-User-Id and X-User-Role forwarded
+- Unauthenticated requests to protected routes get 401
+- CORS allows frontend origin
