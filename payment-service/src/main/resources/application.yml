@@ -4,6 +4,21 @@ server:
 spring:
   application:
     name: payment-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/escrow?currentSchema=payments
+    username: escrow
+    password: escrow
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: payments
+    open-in-view: false
+  flyway:
+    schemas: payments
+    default-schema: payments
 
 management:
   endpoints:

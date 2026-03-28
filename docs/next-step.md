@@ -1,23 +1,24 @@
-# Next Step: Step 6 — Payment Service: Mock Accounts and Escrow Hold
+# Next Step: Step 7 — Deal-Payment Kafka Integration
 
 ## Goal
-Mock payment system with user accounts and escrow hold/release operations.
+Deal state transitions trigger payment operations via Kafka events. Full happy path works end-to-end.
 
 ## Tasks
-1. Add dependencies: Spring Data JPA, Flyway, PostgreSQL, Validation
-2. Flyway V1: `accounts`, `transactions`, `escrow_holds` tables in `payments` schema
-3. Entities: Account (auto-created, 10000 RUB balance), Transaction, EscrowHold
-4. PaymentService: getOrCreateAccount, holdFunds, releaseFunds, refundFunds
-5. PaymentController:
-   - `GET /api/payments/account` — my account balance
-   - `GET /api/payments/transactions` — my transaction history
-6. Internal endpoints for deal-service integration (hold/release)
-7. Pessimistic locking on account balance updates
-8. Integration tests with Testcontainers
+1. Add Spring Kafka dependency to deal-service and payment-service
+2. Kafka topics: `deal-events`, `payment-events`
+3. Deal-service:
+   - `DealEventProducer`: publishes events on state transitions
+   - `PaymentEventConsumer`: listens for payment confirmations
+   - New endpoints: `POST /api/deals/{id}/fund`, `POST /api/deals/{id}/deliver`, `POST /api/deals/{id}/confirm`
+4. Payment-service:
+   - `DealEventConsumer`: listens for deal fund/confirm events → hold/release
+   - `PaymentEventProducer`: publishes hold/release confirmations
+5. Idempotency keys on all events (deal_id + event_type)
+6. Integration test for full happy path
 
 ## Verification
 ```bash
-./gradlew :payment-service:compileJava
-./gradlew :payment-service:compileTestJava
 ./gradlew build -x test
+# Full happy path via curl:
+# register 2 users → login → create deal → fund → deliver → confirm → COMPLETED
 ```

@@ -12,35 +12,35 @@
 - [x] PostgreSQL 16, Zookeeper, Kafka, Dockerfiles, healthchecks
 
 ### Step 3: Auth Service (2026-03-28)
-- [x] User/RefreshToken entities, JWT (access 15min + refresh 7d), Spring Security
-- [x] POST register/login/refresh, GET me; Flyway V1; integration tests
+- [x] User/RefreshToken, JWT (15min+7d), Spring Security, Flyway V1, 5 integration tests
 
 ### Step 4: API Gateway (2026-03-28)
-- [x] Spring Cloud Gateway routes (6), JWT filter, CORS, X-User-Id/Role/Email forwarding
+- [x] Spring Cloud Gateway (6 routes), JWT filter, CORS, X-User-Id/Role/Email forwarding
 
-### Step 5: Deal Service — Create and Read Deals (2026-03-28)
-- [x] Deal entity: UUID, title, description, amount, currency, depositor/beneficiary IDs, status, timestamps
-- [x] DealEvent entity: audit log with event_type, actor, status transition, JSONB payload
-- [x] DealStatus enum: CREATED, FUNDED, DELIVERED, RELEASING, COMPLETED, CANCELLED, DISPUTED, RESOLVED
-- [x] DealStateMachine: static transition map with validate() — full lifecycle transitions defined
-- [x] DealRepository: find by depositor/beneficiary, ordered by created_at desc
-- [x] DealService: createDeal, getDeal, getDealEvents, listDeals, cancelDeal + event recording
-- [x] DealController (reads X-User-Id/X-User-Role from gateway headers):
-  - `POST /api/deals` — create deal (201)
-  - `GET /api/deals` — list user's deals
-  - `GET /api/deals/{id}` — deal details (403 if not party)
-  - `GET /api/deals/{id}/events` — deal event history
-  - `POST /api/deals/{id}/cancel` — cancel deal (409 if invalid transition)
-- [x] Flyway V1: deals + deal_events tables with indexes in `deals` schema
-- [x] Integration test (5 cases): create+get, list, cancel+idempotency, access denied, health
+### Step 5: Deal Service (2026-03-28)
+- [x] Deal/DealEvent entities, DealStateMachine, CRUD + cancel, Flyway V1, 5 integration tests
+
+### Step 6: Payment Service — Mock Accounts and Escrow Hold (2026-03-28)
+- [x] Account entity: UUID, user_id (unique), balance (default 10000 RUB), currency
+- [x] Transaction entity: deal_id, from/to account, amount, type, status, timestamps
+- [x] EscrowHold entity: deal_id (unique), amount, status (HELD/RELEASED/REFUNDED)
+- [x] Enums: TransactionType (DEPOSIT_TO_ESCROW, RELEASE_TO_BENEFICIARY, REFUND_TO_DEPOSITOR),
+  TransactionStatus (PENDING, COMPLETED, FAILED), EscrowHoldStatus (HELD, RELEASED, REFUNDED)
+- [x] AccountRepository with pessimistic locking (`findByUserIdForUpdate`)
+- [x] PaymentService: getOrCreateAccount, holdFunds, releaseFunds, refundFunds
+  - Idempotent hold/release (duplicate calls are no-ops)
+  - Insufficient funds check on hold
+  - Pessimistic locking prevents race conditions
+- [x] PaymentController: GET /api/payments/account, GET /api/payments/transactions
+- [x] InternalPaymentController: POST hold/release/refund (for inter-service calls)
+- [x] Flyway V1: accounts, escrow_holds, transactions tables in `payments` schema
+- [x] Integration test (5 cases): account creation, hold+release, insufficient funds, idempotency, health
 - [x] `./gradlew build -x test` — BUILD SUCCESSFUL (all modules)
-- [x] `./gradlew :deal-service:compileTestJava` — compiles
 
 ## Pending Steps
 
 | Step | Name | Status |
 |------|------|--------|
-| 6 | Payment service — mock accounts + escrow | ⬜ |
 | 7 | Deal-Payment Kafka integration | ⬜ |
 | 8 | Frontend — auth pages | ⬜ |
 | 9 | Frontend — deal flow UI | ⬜ |
