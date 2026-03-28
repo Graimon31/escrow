@@ -1,28 +1,26 @@
 # Прогресс реализации (Progress)
 
-## Шаги 1-6
-Статус: выполнены (каркас, infra, auth, deal/escrow, funding event-driven, fulfillment/review).
+## Шаги 1-7
+Статус: выполнены (каркас, business flows до release/refund/dispute).
 
-## Шаг 7 — Resolution/Release/Refund/Dispute
+## Шаг 8 — Эксплуатационная готовность локального MVP
 Статус: выполнен.
 
 Сделано:
-- реализован `resolution-service`:
-  - принятие финального исхода `RELEASE | REFUND`;
-  - хранение истории решений;
-  - публикация Kafka-событий `FUNDS_RELEASED | FUNDS_REFUNDED`;
-- реализован `dispute-service`:
-  - открытие спора;
-  - хранение истории споров;
-  - автоматическое закрытие OPEN-спора по resolution-событию;
-- `deal-service` расширен финальными переходами: `RELEASED` / `REFUNDED`;
-- `escrow-account-service` расширен финальными переходами: `RELEASED_TO_BENEFICIARY` / `REFUNDED_TO_DEPOSITOR`;
-- добавлены UI-экраны:
-  - `/dispute/{dealId}`;
-  - `/outcome/{dealId}`;
-- обновлены infra/docs/tests.
+- Prometheus metrics scrape для сервисов;
+- Grafana provisioning (datasource + dashboard `Escrow MVP Overview`);
+- structured logs через `LOGGING_PATTERN_CONSOLE`;
+- Elasticsearch + Kibana log flow через `filebeat`;
+- завершены `README.requirements.md`, `README.testing.md`, `README.operations.md`;
+- добавлен GitHub Actions CI workflow;
+- расширены smoke/e2e скрипты;
+- one-command bootstrap (`./scripts/start-local.sh`) выполняет запуск + smoke-проверку;
+- финализированы URL для Swagger/Grafana/Kibana и документация.
 
-Проверены сценарии:
-- release;
-- refund;
-- dispute.
+Критерии готовности:
+- Swagger доступен;
+- Grafana доступна;
+- Kibana доступна;
+- тестовые пользователи есть;
+- smoke/e2e есть;
+- документация завершена.

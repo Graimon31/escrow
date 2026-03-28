@@ -42,6 +42,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports: ["8081:8080"]
     healthcheck: { test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"], interval: 10s, timeout: 5s, retries: 20 }
@@ -56,6 +57,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       APP_ESCROW_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_ESCROW_DB_USER: ${POSTGRES_USER}
       APP_ESCROW_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -76,6 +78,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       APP_DEAL_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_DEAL_DB_USER: ${POSTGRES_USER}
       APP_DEAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -97,6 +100,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       APP_FUNDING_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_FUNDING_DB_USER: ${POSTGRES_USER}
       APP_FUNDING_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -115,6 +119,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       APP_FULFILLMENT_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_FULFILLMENT_DB_USER: ${POSTGRES_USER}
       APP_FULFILLMENT_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -133,6 +138,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       APP_REVIEW_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_REVIEW_DB_USER: ${POSTGRES_USER}
       APP_REVIEW_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -151,6 +157,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       APP_DISPUTE_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_DISPUTE_DB_USER: ${POSTGRES_USER}
       APP_DISPUTE_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -170,6 +177,7 @@ services:
     environment:
       SERVER_PORT: 8080
       APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET}
+      LOGGING_PATTERN_CONSOLE: ${LOGGING_PATTERN_CONSOLE}
       APP_RESOLUTION_DB_URL: jdbc:postgresql://postgres:5432/escrow
       APP_RESOLUTION_DB_USER: ${POSTGRES_USER}
       APP_RESOLUTION_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -213,6 +221,17 @@ services:
     environment: { ELASTICSEARCH_HOSTS: http://elasticsearch:9200 }
     ports: ["5601:5601"]
 
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.15.3
+    container_name: escrow-filebeat
+    user: root
+    depends_on: [elasticsearch]
+    command: ["--strict.perms=false"]
+    volumes:
+      - "./docker/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
   prometheus:
     image: prom/prometheus:v2.54.1
     container_name: escrow-prometheus
@@ -236,7 +255,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-    volumes: ["grafana_data:/var/lib/grafana"]
+    volumes: ["grafana_data:/var/lib/grafana", "./docker/grafana/provisioning:/etc/grafana/provisioning:ro", "./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro"]
 
 volumes:
   postgres_data:

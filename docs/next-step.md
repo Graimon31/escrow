@@ -1,10 +1,10 @@
 # Следующий шаг (Next Step)
 
-## Шаг 8 — Notification/Audit hardening + close flow
+## Шаг 9 — Production-hardening MVP
 
 Сделать:
-1. Подключить `notification-service` к событиям dispute/resolution.
-2. Добавить автоматический переход deal/account в `CLOSED` после подтверждённого завершения расчётов.
-3. Вынести payout/refund mock в отдельный payment-adapter интерфейс.
-4. Добавить интеграционные end-to-end тесты полного цикла с Kafka/Testcontainers.
-5. Расширить audit trail межсервисной корреляцией (`traceId`, `idempotencyKey`).
+1. Добавить alerting rules (Prometheus Alertmanager) и уведомления в `notification-service`.
+2. Добавить закрытие сделок/счетов в `CLOSED` после подтверждённого completion.
+3. Реализовать retry/DLQ стратегию для Kafka listeners.
+4. Добавить интеграционные тесты на Testcontainers (Postgres + Kafka + Elasticsearch).
+5. Усилить security профиль: CORS/headers/rate limit/secret management.

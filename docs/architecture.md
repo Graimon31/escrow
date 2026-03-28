@@ -1,11 +1,12 @@
 # Архитектура проекта (Project Architecture)
 
 ## Текущий этап
-Запускаемый MVP с working slices:
+Эксплуатационно проверяемый локальный MVP:
 - auth;
 - deal + escrow-account + funding (event-driven);
 - fulfillment + review;
-- dispute + resolution + финальные исходы (release/refund).
+- dispute + resolution;
+- observability (Prometheus + Grafana dashboards + structured logs + Elasticsearch/Kibana).
 
 ## Event-driven контуры
 Kafka topics:
@@ -15,21 +16,24 @@ Kafka topics:
 - `escrow.dispute.events`
 - `escrow.resolution.events`
 
-Deal-service обрабатывает события funding/fulfillment/review/resolution и переводит сделку в финальные состояния.
-Escrow-account-service обрабатывает funding/resolution события и поддерживает консистентные финальные состояния счёта.
-Dispute-service ведёт реестр споров и автоматически закрывает OPEN-спор после resolution события.
+`deal-service` обрабатывает funding/fulfillment/review/resolution события.
+`escrow-account-service` обрабатывает funding/resolution события.
+`dispute-service` закрывает OPEN-спор по resolution событию.
 
-## Финальные статусы
+## Наблюдаемость
+- Метрики: `/actuator/prometheus` у backend-сервисов.
+- Prometheus scrapes сервисы + агрегирует метрики.
+- Grafana с provisioning datasource/dashboard (`Escrow MVP Overview`).
+- Structured logs (key=value паттерн) в stdout контейнеров.
+- Filebeat -> Elasticsearch (`escrow-logs-*`) -> Kibana.
+
+## Финальные статусы (MVP)
 ### Deal
 - `RELEASED`
 - `REFUNDED`
-- `CLOSED` (техническое финальное состояние, доступно для следующего шага)
+- `CLOSED` (зарезервирован для следующего шага close-flow)
 
 ### EscrowAccount
 - `RELEASED_TO_BENEFICIARY`
 - `REFUNDED_TO_DEPOSITOR`
-- `CLOSED` (резерв под следующий шаг)
-
-## Ограничения шага
-- фокус на корректность state transitions и консистентность;
-- второстепенные сценарии (сложные SLA/таймеры/мульти-эскалации) не включены.
+- `CLOSED` (зарезервирован для следующего шага close-flow)

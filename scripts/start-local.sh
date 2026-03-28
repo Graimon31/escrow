@@ -8,7 +8,11 @@ fi
 
 docker compose up -d
 
-echo "Локальный каркас запущен."
-echo "Frontend skeleton: ./frontend"
-echo "Backend skeleton: ./backend/services"
-echo "Запустите smoke-check: ./scripts/smoke-check.sh"
+echo "Стек запущен. Ожидание готовности..."
+./scripts/smoke-check.sh
+
+echo "Локальный MVP готов к проверке:"
+echo "- Frontend: http://localhost:3000"
+echo "- Grafana:  http://localhost:3001"
+echo "- Kibana:   http://localhost:5601"
+echo "- Swagger deal-service: http://localhost:8080/swagger-ui.html"

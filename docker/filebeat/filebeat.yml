@@ -1,0 +1,22 @@
+filebeat.inputs:
+  - type: filestream
+    id: docker-containers
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    parsers:
+      - container: ~
+
+processors:
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "escrow-logs-%{+yyyy.MM.dd}"
+
+setup.ilm.enabled: false
+setup.template.name: "escrow-logs"
+setup.template.pattern: "escrow-logs-*"
+
+logging.json: true
+logging.metrics.enabled: false

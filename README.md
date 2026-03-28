@@ -1,41 +1,49 @@
 # Платформа эскроу-first (Escrow-first Platform)
 
-## Быстрый старт
+Локально запускаемый MVP микросервисной платформы со счётом эскроу (escrow account) как центральной сущностью.
+
+## One-command bootstrap
 ```bash
-cp .env.example .env
 ./scripts/start-local.sh
-./scripts/smoke-check.sh
 ```
 
 ## Реализованные срезы
-- auth (JWT + роли)
-- deal + escrow-account + funding (Kafka)
-- fulfillment + review
-- dispute + resolution + final outcomes (release/refund)
+- auth (JWT + роли);
+- deal + escrow-account + funding (event-driven);
+- fulfillment + review;
+- dispute + resolution + финальные исходы (release/refund);
+- observability (Prometheus, Grafana dashboards, structured logs, Elasticsearch + Kibana).
 
-## Новые MVP-возможности шага
-- Открытие спора: `POST /api/v1/disputes/open`
-- Финальное решение: `POST /api/v1/resolution/decide`
-- История споров/решений:
-  - `GET /api/v1/disputes/{dealId}`
-  - `GET /api/v1/resolution/history/{dealId}`
-- Финальные состояния:
-  - сделка: `RELEASED` / `REFUNDED`
-  - счёт: `RELEASED_TO_BENEFICIARY` / `REFUNDED_TO_DEPOSITOR`
+## Ключевые URL
+- Frontend: `http://localhost:3000`
+- Grafana: `http://localhost:3001`
+- Prometheus: `http://localhost:9090`
+- Kibana: `http://localhost:5601`
+- Elasticsearch: `http://localhost:9200`
 
-## UI
-- `/fulfillment/{dealId}` — экран исполнения обязательства
-- `/review/{dealId}` — экран проверки депонентом
-- `/dispute/{dealId}` — экран спора
-- `/outcome/{dealId}` — экран финального исхода
-- `/deals/{dealId}` — карточка сделки со ссылками на экраны
+Swagger UI:
+- auth-service: `http://localhost:8081/swagger-ui.html`
+- deal-service: `http://localhost:8080/swagger-ui.html`
+- escrow-account-service: `http://localhost:8082/swagger-ui.html`
+- funding-service: `http://localhost:8083/swagger-ui.html`
+- fulfillment-service: `http://localhost:8084/swagger-ui.html`
+- review-service: `http://localhost:8085/swagger-ui.html`
+- dispute-service: `http://localhost:8086/swagger-ui.html`
+- resolution-service: `http://localhost:8087/swagger-ui.html`
 
-## Основные backend адреса
-- auth-service: `http://localhost:8081`
-- deal-service: `http://localhost:8080`
-- escrow-account-service: `http://localhost:8082`
-- funding-service: `http://localhost:8083`
-- fulfillment-service: `http://localhost:8084`
-- review-service: `http://localhost:8085`
-- dispute-service: `http://localhost:8086`
-- resolution-service: `http://localhost:8087`
+## Тестовые пользователи
+- `depositor / depositor123` (DEPOSITOR)
+- `beneficiary / beneficiary123` (BENEFICIARY)
+- `operator / operator123` (OPERATOR)
+- `admin / admin123` (ADMIN)
+
+## Проверки
+```bash
+./scripts/smoke-check.sh
+./scripts/e2e.sh
+```
+
+См. также:
+- `README.requirements.md`
+- `README.testing.md`
+- `README.operations.md`
