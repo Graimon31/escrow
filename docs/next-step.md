@@ -1,25 +1,27 @@
-# Next Step: Step 1 — Project Scaffolding and Build Infrastructure
+# Next Step: Step 2 — Docker Compose Infrastructure Layer
 
 ## Goal
-Gradle multi-module project builds successfully. Each service has a minimal Spring Boot app. Frontend scaffolded with Next.js.
+All infrastructure runs locally via Docker Compose. PostgreSQL with per-service schemas, Kafka with Zookeeper.
 
 ## Tasks
-1. Create root `build.gradle.kts` with Java 21 toolchain, Spring Boot 3.x BOM, shared config
-2. Create `settings.gradle.kts` with all module includes
-3. Create `gradle/libs.versions.toml` with centralized dependency versions
-4. Create module directories: `api-gateway/`, `auth-service/`, `deal-service/`, `payment-service/`, `notification-service/`
-5. Each Java module: `build.gradle.kts` + minimal `Application.java` + `application.yml` with unique port
-6. Scaffold frontend: `npx create-next-app@14` with TypeScript, Tailwind, App Router
-7. Add `.gitignore` for Java/Gradle/Node
+1. Create `docker-compose.yml` with PostgreSQL 16, Kafka (Bitnami), Zookeeper
+2. Create `init-db/init.sql` to create schemas: `auth`, `deals`, `payments`, `notifications`
+3. Add Dockerfiles for each Java service (multi-stage: gradle build → eclipse-temurin:21-jre)
+4. Add Dockerfile for frontend (multi-stage: npm build → node:22-alpine)
+5. Add service containers to docker-compose.yml with correct ports and depends_on
+6. Configure services' `application.yml` with datasource URLs for Dockerized Postgres
 
 ## Verification
 ```bash
-./gradlew build                     # all modules compile
-cd frontend && npm run build        # frontend builds
-# Each service starts and responds on /actuator/health
+docker compose up -d postgres kafka zookeeper     # infra starts
+docker compose exec postgres psql -U escrow -c '\dn'  # schemas exist
+docker compose up -d                               # all services start
+curl http://localhost:8080/actuator/health          # gateway responds
+curl http://localhost:8081/actuator/health          # auth responds
 ```
 
 ## Expected Outcome
-- 5 Java modules compile and pass (no tests yet, just skeleton)
-- Frontend builds successfully
-- Project structure matches docs/architecture.md
+- `docker compose up` brings up entire stack
+- PostgreSQL has 4 schemas ready
+- Kafka broker is reachable on :9092
+- All 5 Java services + frontend accessible on their ports
