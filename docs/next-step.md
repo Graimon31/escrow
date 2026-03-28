@@ -1,30 +1,24 @@
-# Next Step: Step 4 — API Gateway: Routing and JWT Validation
+# Next Step: Step 5 — Deal Service: Create and Read Deals
 
 ## Goal
-Single entry point at :8080 that validates JWT tokens and routes to downstream services.
+Depositor can create an escrow deal; both parties can view their deals. Core domain service with deal state machine.
 
 ## Tasks
-1. Configure Spring Cloud Gateway routes:
-   - `/api/auth/**` → auth-service:8081
-   - `/api/deals/**` → deal-service:8082
-   - `/api/payments/**` → payment-service:8083
-   - `/api/notifications/**` → notification-service:8084
-2. Add JWT validation filter (extract claims, forward `X-User-Id` and `X-User-Role` headers)
-3. CORS configuration for `localhost:3000`
-4. Add shared JWT secret config
-5. Public routes bypass JWT filter (auth endpoints, actuator)
+1. Add dependencies: Spring Data JPA, Flyway, PostgreSQL, Validation
+2. Flyway migration V1: `deals` and `deal_events` tables in `deals` schema
+3. Entities: `Deal`, `DealEvent`, `DealStatus` enum
+4. `DealStateMachine`: validates allowed state transitions
+5. `DealService`: create deal, get deal, list deals (filtered by user role)
+6. `DealController`: reads X-User-Id/X-User-Role headers from gateway
+   - `POST /api/deals` — create (depositor)
+   - `GET /api/deals` — list my deals
+   - `GET /api/deals/{id}` — deal details
+   - `POST /api/deals/{id}/cancel` — cancel deal
+7. Integration tests with Testcontainers
 
 ## Verification
 ```bash
-./gradlew :api-gateway:build
-# With auth-service + gateway running:
-curl localhost:8080/api/auth/login ...     # passes through to auth-service
-curl localhost:8080/api/deals             # 401 without token
-curl -H "Authorization: Bearer <token>" localhost:8080/api/deals  # routes with X-User-Id header
+./gradlew :deal-service:compileJava
+./gradlew build -x test
+# With running stack: create deal via gateway with JWT → 201
 ```
-
-## Expected Outcome
-- Gateway routes all `/api/**` requests to correct downstream services
-- JWT validated at gateway level; X-User-Id and X-User-Role forwarded
-- Unauthenticated requests to protected routes get 401
-- CORS allows frontend origin

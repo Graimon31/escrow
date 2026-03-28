@@ -6,6 +6,9 @@ dependencyManagement {
 
 dependencies {
     implementation(rootProject.libs.spring.cloud.starter.gateway)
+    implementation(rootProject.libs.jjwt.api)
+    runtimeOnly(rootProject.libs.jjwt.impl)
+    runtimeOnly(rootProject.libs.jjwt.jackson)
 }
 
 configurations {
