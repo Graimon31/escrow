@@ -1,0 +1,11 @@
+# Java/Gradle
+**/build/
+.gradle/
+
+# Node/Next
+node_modules/
+.next/
+*.tsbuildinfo
+
+# Env
+.env

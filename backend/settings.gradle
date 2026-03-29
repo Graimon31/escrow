@@ -1,0 +1,15 @@
+rootProject.name = 'escrow-backend'
+
+include(
+    'services:deal-service',
+    'services:escrow-account-service',
+    'services:funding-service',
+    'services:fulfillment-service',
+    'services:review-service',
+    'services:resolution-service',
+    'services:dispute-service',
+    'services:document-service',
+    'services:notification-service',
+    'services:audit-service',
+    'services:auth-service'
+)

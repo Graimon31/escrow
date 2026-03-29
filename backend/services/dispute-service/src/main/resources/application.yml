@@ -1,0 +1,41 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: dispute-service
+  datasource:
+    url: ${APP_DISPUTE_DB_URL:jdbc:postgresql://postgres:5432/escrow}
+    username: ${APP_DISPUTE_DB_USER:escrow}
+    password: ${APP_DISPUTE_DB_PASSWORD:escrow}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    table: flyway_schema_history_dispute
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  kafka:
+    dispute-topic: ${APP_KAFKA_DISPUTE_TOPIC:escrow.dispute.events}
+    resolution-topic: ${APP_KAFKA_RESOLUTION_TOPIC:escrow.resolution.events}
+  security:
+    jwt-secret: ${APP_AUTH_JWT_SECRET:change-me-in-env-very-secret-key-1234567890}

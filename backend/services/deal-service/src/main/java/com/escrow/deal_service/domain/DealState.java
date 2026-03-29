@@ -1,0 +1,17 @@
+package com.escrow.deal_service.domain;
+
+public enum DealState {
+    DRAFT,
+    AGREED,
+    ACCOUNT_OPENED,
+    AWAITING_FUNDING,
+    FUNDING_PROCESSING,
+    FUNDS_SECURED,
+    AWAITING_BENEFICIARY_FULFILLMENT,
+    AWAITING_DEPOSITOR_REVIEW,
+    RELEASE_PENDING,
+    DISPUTED,
+    RELEASED,
+    REFUNDED,
+    CLOSED
+}

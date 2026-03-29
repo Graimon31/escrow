@@ -1,0 +1,40 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: auth-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+app:
+  auth:
+    jwt-secret: "change-me-in-env-very-secret-key-1234567890"
+    jwt-ttl-minutes: 120
+    users:
+      - username: depositor
+        password: depositor123
+        role: DEPOSITOR
+        displayName: "Депонент тестовый"
+      - username: beneficiary
+        password: beneficiary123
+        role: BENEFICIARY
+        displayName: "Бенефициар тестовый"
+      - username: operator
+        password: operator123
+        role: OPERATOR
+        displayName: "Оператор тестовый"
+      - username: admin
+        password: admin123
+        role: ADMIN
+        displayName: "Администратор тестовый"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

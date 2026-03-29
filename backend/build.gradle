@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+allprojects {
+    group = 'com.escrow'
+    version = '0.1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    configurations.configureEach {
+        resolutionStrategy {
+            force 'org.flywaydb:flyway-core:10.22.0'
+            force 'org.flywaydb:flyway-database-postgresql:10.22.0'
+        }
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+}
