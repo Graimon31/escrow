@@ -6,6 +6,12 @@ if [[ ! -f .env ]]; then
   echo "Создан .env из .env.example"
 fi
 
+export COMPOSE_PARALLEL_LIMIT="${COMPOSE_PARALLEL_LIMIT:-2}"
+
+echo "Сборка образов (COMPOSE_PARALLEL_LIMIT=${COMPOSE_PARALLEL_LIMIT})..."
+docker compose build
+
+echo "Запуск стека..."
 docker compose up -d
 
 echo "Стек запущен. Ожидание готовности..."
