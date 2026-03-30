@@ -69,13 +69,27 @@
 - [x] `npm run build` (13 routes), `npm run lint` — clean
 - [x] `./gradlew build -x test` — BUILD SUCCESSFUL
 
+### Step 10: Notification Service (2026-03-30)
+- [x] Added Spring Kafka + Spring Data JPA + Flyway dependencies to notification-service
+- [x] Notification entity (id, userId, type, title, message, dealId, read, createdAt)
+- [x] Flyway V1 migration: notifications table with indexes (user_id, unread)
+- [x] DealEventConsumer: Kafka listener on "deal-events" topic, creates notifications for relevant users
+  - Handles all 12 event types (CREATED, SUBMITTED, AGREED, DECLINED, FUNDED, DELIVERED, COMPLETED, REFUNDED, DISPUTED, DISPUTE_RESOLVED_RELEASE/REFUND, CANCELLED)
+  - Notifies correct user(s) per event type (some events notify both parties)
+- [x] REST endpoints: GET /api/notifications, GET /api/notifications/unread-count, PATCH /api/notifications/{id}/read, POST /api/notifications/read-all
+- [x] Frontend /notifications page: real notification list with type icons, mark read, mark all read, link to deal
+- [x] Notification bell in top bar: unread count badge with 30s polling
+- [x] application.yml + application-docker.yml for PostgreSQL (notifications schema), Kafka consumer config
+- [x] `./gradlew build -x test` — BUILD SUCCESSFUL
+- [x] `cd frontend && npm run build` — BUILD SUCCESSFUL (11 routes)
+
 ## Pending Steps
 
 | Step | Name | Status |
 |------|------|--------|
 | 8 | Frontend — auth pages | ✅ |
 | 9 | Frontend — deal flow UI | ✅ |
-| 10 | Notification service | ⬜ |
+| 10 | Notification service | ✅ |
 | 11 | Operator + admin roles | ⬜ |
 | 12 | Dispute flow | ⬜ |
 | 13 | Observability stack | ⬜ |

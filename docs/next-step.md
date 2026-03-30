@@ -1,21 +1,20 @@
-# Next Step: Step 10 — Notification Service
+# Next Step: Step 11 — Operator + Admin Roles
 
 ## Goal
-Kafka consumer that listens to deal-events topic and stores in-app notifications for users.
+Add operator and administrator functionality: operator dashboard for managing deals/disputes, admin panel for user management.
 
 ## Tasks
-1. Add Spring Kafka + Spring Data JPA dependencies to notification-service
-2. Create Notification entity (id, userId, type, title, message, dealId, read, createdAt)
-3. Flyway V1 migration for notifications table
-4. Kafka consumer: listen to "deal-events" topic, create notifications for relevant users
-5. REST endpoints: GET /api/notifications (list), PATCH /api/notifications/{id}/read (mark read)
-6. Wire up frontend /notifications page to display real notifications
-7. Update notification bell in top bar to show unread count
+1. Operator dashboard: list all deals, filter by status, view any deal detail
+2. Operator actions: assign operator to deal, resolve disputes
+3. Admin user management: list users, change roles, deactivate accounts
+4. Role-based route guards in frontend (operator/admin pages)
+5. Backend authorization checks (operator/admin-only endpoints)
+6. Navigation updates: show operator/admin menu items based on role
 
 ## Verification
 ```bash
-./gradlew :notification-service:compileJava
 ./gradlew build -x test
 cd frontend && npm run build
-# Manual: create deal → see notification appear for beneficiary
+# Manual: login as operator → see operator dashboard, manage disputes
+# Manual: login as admin → see admin panel, manage users
 ```

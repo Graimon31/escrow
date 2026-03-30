@@ -159,3 +159,34 @@ export function apiDealAction(id: string, action: string, body?: object): Promis
     body: body ? JSON.stringify(body) : undefined,
   });
 }
+
+// ── Notification types ──────────────────────────────────────
+
+export interface NotificationResponse {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  dealId: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
+// ── Notification API ────────────────────────────────────────
+
+export function apiGetNotifications(): Promise<NotificationResponse[]> {
+  return apiFetch('/api/notifications');
+}
+
+export function apiGetUnreadCount(): Promise<{ count: number }> {
+  return apiFetch('/api/notifications/unread-count');
+}
+
+export function apiMarkNotificationRead(id: string): Promise<NotificationResponse> {
+  return apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+}
+
+export function apiMarkAllNotificationsRead(): Promise<void> {
+  return apiFetch('/api/notifications/read-all', { method: 'POST' });
+}
