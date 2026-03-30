@@ -43,9 +43,10 @@ public class DealController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getDeal(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") UUID userId) {
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
         try {
-            return ResponseEntity.ok(dealService.getDeal(id, userId));
+            return ResponseEntity.ok(dealService.getDeal(id, userId, userRole));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (SecurityException e) {
@@ -56,9 +57,10 @@ public class DealController {
     @GetMapping("/{id}/events")
     public ResponseEntity<?> getDealEvents(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") UUID userId) {
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
         try {
-            return ResponseEntity.ok(dealService.getDealEvents(id, userId));
+            return ResponseEntity.ok(dealService.getDealEvents(id, userId, userRole));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (SecurityException e) {

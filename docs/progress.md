@@ -83,13 +83,49 @@
 - [x] `./gradlew build -x test` — BUILD SUCCESSFUL
 - [x] `cd frontend && npm run build` — BUILD SUCCESSFUL (11 routes)
 
-## Pending Steps
+### Step 11: Operator + Admin Roles (2026-03-30)
+- [x] AdminController in auth-service: GET /api/admin/users, PATCH role, PATCH toggle enabled
+- [x] OperatorController in deal-service: GET /api/operator/deals (with status filter), GET /api/operator/deals/stats
+- [x] DealService: operators/admins can view any deal (bypass depositor/beneficiary check)
+- [x] UserResponse: added `enabled` field
+- [x] DealRepository: new query methods (findAllByOrder, findByStatus, countByStatus, countByStatusNotIn)
+- [x] Frontend: /operator page — stats cards, deal table with filter, resolve dispute modal
+- [x] Frontend: /admin page — user list, change role dropdown, enable/disable toggle
+- [x] Sidebar: role-based navigation (Operator Panel for OPERATOR/ADMIN, Admin Panel for ADMIN only)
+- [x] API routes already configured: /api/admin/** → auth-service, /api/operator/** → deal-service
+
+### Step 12: Dispute Flow (2026-03-30)
+- [x] Already implemented in Steps 9b + 11:
+  - disputeDeal() — depositor/beneficiary can open dispute from AWAITING_FULFILLMENT/AWAITING_REVIEW
+  - resolveDispute() — operator/admin resolves with RELEASE or REFUND
+  - Frontend deal detail page shows dispute actions per role
+  - Operator panel has "Resolve Dispute" button + modal
+
+### Step 13: Observability Stack (2026-03-30)
+- [x] Added micrometer-prometheus to all services (root build.gradle.kts)
+- [x] All services expose /actuator/prometheus endpoint
+- [x] Prometheus in docker-compose: scrapes all 5 services every 15s
+- [x] Grafana in docker-compose: auto-provisioned with Prometheus + Elasticsearch datasources
+- [x] Pre-built dashboard: "Escrow Platform Overview" (request rate, p95 latency, JVM heap, service health)
+- [x] Elasticsearch 8.13 + Kibana 8.13 in docker-compose
+- [x] `./gradlew build -x test` — BUILD SUCCESSFUL
+- [x] `cd frontend && npm run build` — BUILD SUCCESSFUL (13 routes)
+
+## All Steps Complete
 
 | Step | Name | Status |
 |------|------|--------|
+| 0 | Project planning | ✅ |
+| 1 | Project scaffolding | ✅ |
+| 2 | Docker Compose | ✅ |
+| 3 | Auth service | ✅ |
+| 4 | API Gateway | ✅ |
+| 5 | Deal service | ✅ |
+| 6 | Payment service | ✅ |
+| 7 | Deal-Payment integration | ✅ |
 | 8 | Frontend — auth pages | ✅ |
 | 9 | Frontend — deal flow UI | ✅ |
 | 10 | Notification service | ✅ |
-| 11 | Operator + admin roles | ⬜ |
-| 12 | Dispute flow | ⬜ |
-| 13 | Observability stack | ⬜ |
+| 11 | Operator + admin roles | ✅ |
+| 12 | Dispute flow | ✅ |
+| 13 | Observability stack | ✅ |

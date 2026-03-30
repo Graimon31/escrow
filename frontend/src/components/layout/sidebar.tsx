@@ -4,9 +4,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 
-const NAV_ITEMS = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ active: boolean }>;
+  roles?: string[];
+}
+
+const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
   { href: '/deals', label: 'Deals', icon: DealsIcon },
+  { href: '/operator', label: 'Operator Panel', icon: OperatorIcon, roles: ['OPERATOR', 'ADMINISTRATOR'] },
+  { href: '/admin', label: 'Admin Panel', icon: AdminIcon, roles: ['ADMINISTRATOR'] },
   { href: '/documents', label: 'Documents', icon: DocumentsIcon },
   { href: '/notifications', label: 'Notifications', icon: NotificationsIcon },
   { href: '/settings', label: 'Settings', icon: SettingsIcon },
@@ -18,6 +27,10 @@ export default function Sidebar() {
 
   if (!user) return null;
 
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => !item.roles || item.roles.includes(user.role)
+  );
+
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-gray-200 bg-white lg:block">
       <div className="flex h-16 items-center border-b border-gray-200 px-6">
@@ -27,7 +40,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="mt-4 space-y-1 px-3">
-        {NAV_ITEMS.map((item) => {
+        {visibleItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + '/');
           return (
@@ -62,6 +75,22 @@ function DealsIcon({ active }: { active: boolean }) {
   return (
     <svg className={`h-5 w-5 ${active ? 'text-blue-700' : 'text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+    </svg>
+  );
+}
+
+function OperatorIcon({ active }: { active: boolean }) {
+  return (
+    <svg className={`h-5 w-5 ${active ? 'text-blue-700' : 'text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+    </svg>
+  );
+}
+
+function AdminIcon({ active }: { active: boolean }) {
+  return (
+    <svg className={`h-5 w-5 ${active ? 'text-blue-700' : 'text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
     </svg>
   );
 }

@@ -5,6 +5,7 @@ export interface UserResponse {
   email: string;
   fullName: string;
   role: 'DEPOSITOR' | 'BENEFICIARY' | 'OPERATOR' | 'ADMINISTRATOR';
+  enabled: boolean;
 }
 
 export interface AuthResponse {
@@ -189,4 +190,37 @@ export function apiMarkNotificationRead(id: string): Promise<NotificationRespons
 
 export function apiMarkAllNotificationsRead(): Promise<void> {
   return apiFetch('/api/notifications/read-all', { method: 'POST' });
+}
+
+// ── Admin API ───────────────────────────────────────────────
+
+export function apiAdminListUsers(): Promise<UserResponse[]> {
+  return apiFetch('/api/admin/users');
+}
+
+export function apiAdminChangeRole(userId: string, role: string): Promise<UserResponse> {
+  return apiFetch(`/api/admin/users/${userId}/role`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
+}
+
+export function apiAdminToggleUser(userId: string): Promise<UserResponse> {
+  return apiFetch(`/api/admin/users/${userId}/toggle`, { method: 'PATCH' });
+}
+
+// ── Operator API ────────────────────────────────────────────
+
+export function apiOperatorListDeals(status?: string): Promise<DealResponse[]> {
+  const query = status ? `?status=${status}` : '';
+  return apiFetch(`/api/operator/deals${query}`);
+}
+
+export function apiOperatorGetStats(): Promise<{
+  total: number;
+  disputed: number;
+  active: number;
+  completed: number;
+}> {
+  return apiFetch('/api/operator/deals/stats');
 }

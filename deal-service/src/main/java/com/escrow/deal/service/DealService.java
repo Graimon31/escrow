@@ -313,15 +313,29 @@ public class DealService {
 
     @Transactional(readOnly = true)
     public DealResponse getDeal(UUID dealId, UUID userId) {
+        return getDeal(dealId, userId, null);
+    }
+
+    @Transactional(readOnly = true)
+    public DealResponse getDeal(UUID dealId, UUID userId, String userRole) {
         Deal deal = findDealOrThrow(dealId);
-        checkAccess(deal, userId);
+        if (!isOperatorOrAdmin(userRole)) {
+            checkAccess(deal, userId);
+        }
         return DealResponse.from(deal);
     }
 
     @Transactional(readOnly = true)
     public List<DealEventResponse> getDealEvents(UUID dealId, UUID userId) {
+        return getDealEvents(dealId, userId, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DealEventResponse> getDealEvents(UUID dealId, UUID userId, String userRole) {
         Deal deal = findDealOrThrow(dealId);
-        checkAccess(deal, userId);
+        if (!isOperatorOrAdmin(userRole)) {
+            checkAccess(deal, userId);
+        }
         return dealEventRepository.findByDealIdOrderByCreatedAtAsc(dealId).stream()
                 .map(DealEventResponse::from)
                 .toList();
@@ -360,6 +374,10 @@ public class DealService {
         if (!deal.getDepositorId().equals(userId) && !deal.getBeneficiaryId().equals(userId)) {
             throw new SecurityException("Access denied");
         }
+    }
+
+    private boolean isOperatorOrAdmin(String role) {
+        return "OPERATOR".equals(role) || "ADMINISTRATOR".equals(role);
     }
 
     private void recordEvent(Deal deal, String eventType, UUID actorId, String actorRole,

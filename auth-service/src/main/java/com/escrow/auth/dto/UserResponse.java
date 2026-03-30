@@ -14,8 +14,9 @@ public class UserResponse {
     private String email;
     private String fullName;
     private Role role;
+    private boolean enabled;
 
     public static UserResponse from(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getRole());
+        return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getRole(), user.isEnabled());
     }
 }
