@@ -81,3 +81,81 @@ export function apiRefresh(refreshToken: string): Promise<AuthResponse> {
 export function apiGetMe(): Promise<UserResponse> {
   return apiFetch('/api/auth/me');
 }
+
+// ── Deal types ───────────────────────────────────────────────
+
+export type DealStatus =
+  | 'DRAFT'
+  | 'AWAITING_AGREEMENT'
+  | 'AGREED'
+  | 'AWAITING_FUNDING'
+  | 'FUNDING_PROCESSING'
+  | 'FUNDED'
+  | 'AWAITING_FULFILLMENT'
+  | 'AWAITING_REVIEW'
+  | 'RELEASING'
+  | 'COMPLETED'
+  | 'REFUNDING'
+  | 'REFUNDED'
+  | 'DISPUTED'
+  | 'CANCELLED'
+  | 'CLOSED';
+
+export interface DealResponse {
+  id: string;
+  title: string;
+  description: string | null;
+  amount: number;
+  currency: string;
+  depositorId: string;
+  beneficiaryId: string;
+  status: DealStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DealEventResponse {
+  id: string;
+  eventType: string;
+  actorId: string;
+  actorRole: string;
+  previousStatus: DealStatus | null;
+  newStatus: DealStatus;
+  createdAt: string;
+}
+
+export interface CreateDealRequest {
+  title: string;
+  description?: string;
+  amount: number;
+  currency?: string;
+  beneficiaryId: string;
+}
+
+// ── Deal API ─────────────────────────────────────────────────
+
+export function apiListDeals(): Promise<DealResponse[]> {
+  return apiFetch('/api/deals');
+}
+
+export function apiGetDeal(id: string): Promise<DealResponse> {
+  return apiFetch(`/api/deals/${id}`);
+}
+
+export function apiGetDealEvents(id: string): Promise<DealEventResponse[]> {
+  return apiFetch(`/api/deals/${id}/events`);
+}
+
+export function apiCreateDeal(data: CreateDealRequest): Promise<DealResponse> {
+  return apiFetch('/api/deals', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function apiDealAction(id: string, action: string, body?: object): Promise<DealResponse> {
+  return apiFetch(`/api/deals/${id}/${action}`, {
+    method: 'POST',
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
