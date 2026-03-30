@@ -1,22 +1,21 @@
-# Next Step: Step 9 — Frontend: Deal Flow UI
+# Next Step: Step 10 — Notification Service
 
 ## Goal
-Users can create, view, fund, deliver, and confirm escrow deals through the web UI.
+Kafka consumer that listens to deal-events topic and stores in-app notifications for users.
 
 ## Tasks
-1. Deal API client functions (`lib/api.ts`) — CRUD + state transition calls
-2. Deal list page (`/deals`) — table/cards showing user's deals with status badges
-3. Create deal page (`/deals/new`) — form: title, description, amount, beneficiary email
-4. Deal detail page (`/deals/[id]`) — full deal info, action buttons based on role + status
-5. State-aware action buttons:
-   - Depositor: Fund (CREATED), Confirm (DELIVERED), Cancel
-   - Beneficiary: Deliver (FUNDED)
-6. Navigation update — add "Deals" link to navbar
-7. Tailwind styling for all deal components
+1. Add Spring Kafka + Spring Data JPA dependencies to notification-service
+2. Create Notification entity (id, userId, type, title, message, dealId, read, createdAt)
+3. Flyway V1 migration for notifications table
+4. Kafka consumer: listen to "deal-events" topic, create notifications for relevant users
+5. REST endpoints: GET /api/notifications (list), PATCH /api/notifications/{id}/read (mark read)
+6. Wire up frontend /notifications page to display real notifications
+7. Update notification bell in top bar to show unread count
 
 ## Verification
 ```bash
-cd frontend && npm run build     # builds successfully
-cd frontend && npm run lint      # no errors
-# Manual: create deal → fund → deliver → confirm → see COMPLETED status
+./gradlew :notification-service:compileJava
+./gradlew build -x test
+cd frontend && npm run build
+# Manual: create deal → see notification appear for beneficiary
 ```

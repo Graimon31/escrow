@@ -53,12 +53,28 @@
 - [x] Home page (`/`): redirect to /dashboard or /login based on auth state
 - [x] `npm run build` — BUILD SUCCESSFUL, `npm run lint` — no errors
 
+### Step 9: Frontend — Deal Flow UI + State Machine Expansion (2026-03-30)
+- [x] **9a**: Layout overhaul — sidebar (Dashboard/Deals/Documents/Notifications/Settings), top bar (search/notifications/user menu), mobile sidebar, AppShell wrapper
+- [x] **9b**: Expanded deal state machine (8 → 15 states) per frontend ТЗ
+  - New states: DRAFT, AWAITING_AGREEMENT, AGREED, AWAITING_FUNDING, FUNDING_PROCESSING, AWAITING_FULFILLMENT, AWAITING_REVIEW, REFUNDING, REFUNDED, CLOSED
+  - New endpoints: submit, agree, decline, reject, dispute, resolve
+  - Flyway V2 migration with data migration
+- [x] **9c**: Deal flow UI pages
+  - API client: deal types (15 statuses), list/get/create/action functions
+  - DealStatusBadge: color-coded badges for all states
+  - /deals: table with status/role filters
+  - /deals/new: create deal form
+  - /deals/[id]: detail page with info, timeline, role+state-aware action panel, confirmation modals
+- [x] Placeholder pages: /documents, /notifications, /settings
+- [x] `npm run build` (13 routes), `npm run lint` — clean
+- [x] `./gradlew build -x test` — BUILD SUCCESSFUL
+
 ## Pending Steps
 
 | Step | Name | Status |
 |------|------|--------|
 | 8 | Frontend — auth pages | ✅ |
-| 9 | Frontend — deal flow UI | ⬜ |
+| 9 | Frontend — deal flow UI | ✅ |
 | 10 | Notification service | ⬜ |
 | 11 | Operator + admin roles | ⬜ |
 | 12 | Dispute flow | ⬜ |
