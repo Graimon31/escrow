@@ -66,22 +66,36 @@ public class DealController {
         }
     }
 
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<?> submitDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        return handleAction(() -> dealService.submitDeal(id, userId, userRole));
+    }
+
+    @PostMapping("/{id}/agree")
+    public ResponseEntity<?> agreeDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        return handleAction(() -> dealService.agreeDeal(id, userId, userRole));
+    }
+
+    @PostMapping("/{id}/decline")
+    public ResponseEntity<?> declineDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        return handleAction(() -> dealService.declineDeal(id, userId, userRole));
+    }
+
     @PostMapping("/{id}/fund")
     public ResponseEntity<?> fundDeal(
             @PathVariable UUID id,
             @RequestHeader("X-User-Id") UUID userId,
             @RequestHeader("X-User-Role") String userRole) {
-        try {
-            return ResponseEntity.ok(dealService.fundDeal(id, userId, userRole));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
-        }
+        return handleAction(() -> dealService.fundDeal(id, userId, userRole));
     }
 
     @PostMapping("/{id}/deliver")
@@ -89,15 +103,7 @@ public class DealController {
             @PathVariable UUID id,
             @RequestHeader("X-User-Id") UUID userId,
             @RequestHeader("X-User-Role") String userRole) {
-        try {
-            return ResponseEntity.ok(dealService.deliverDeal(id, userId, userRole));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
-        }
+        return handleAction(() -> dealService.deliverDeal(id, userId, userRole));
     }
 
     @PostMapping("/{id}/confirm")
@@ -105,8 +111,45 @@ public class DealController {
             @PathVariable UUID id,
             @RequestHeader("X-User-Id") UUID userId,
             @RequestHeader("X-User-Role") String userRole) {
+        return handleAction(() -> dealService.confirmDeal(id, userId, userRole));
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<?> rejectDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        return handleAction(() -> dealService.rejectDeal(id, userId, userRole));
+    }
+
+    @PostMapping("/{id}/dispute")
+    public ResponseEntity<?> disputeDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        return handleAction(() -> dealService.disputeDeal(id, userId, userRole));
+    }
+
+    @PostMapping("/{id}/resolve")
+    public ResponseEntity<?> resolveDispute(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole,
+            @RequestBody Map<String, String> body) {
+        return handleAction(() -> dealService.resolveDispute(id, userId, userRole, body.get("resolution")));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelDeal(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        return handleAction(() -> dealService.cancelDeal(id, userId, userRole));
+    }
+
+    private ResponseEntity<?> handleAction(java.util.function.Supplier<DealResponse> action) {
         try {
-            return ResponseEntity.ok(dealService.confirmDeal(id, userId, userRole));
+            return ResponseEntity.ok(action.get());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
@@ -115,22 +158,6 @@ public class DealController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    @PostMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelDeal(
-            @PathVariable UUID id,
-            @RequestHeader("X-User-Id") UUID userId,
-            @RequestHeader("X-User-Role") String userRole) {
-        try {
-            return ResponseEntity.ok(dealService.cancelDeal(id, userId, userRole));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
         }
     }
 }

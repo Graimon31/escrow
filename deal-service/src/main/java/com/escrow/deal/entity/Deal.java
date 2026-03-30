@@ -40,8 +40,8 @@ public class Deal {
     private UUID beneficiaryId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private DealStatus status = DealStatus.CREATED;
+    @Column(nullable = false, length = 30)
+    private DealStatus status = DealStatus.DRAFT;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -50,6 +50,9 @@ public class Deal {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "agreed_at")
+    private LocalDateTime agreedAt;
 
     @Column(name = "funded_at")
     private LocalDateTime fundedAt;
@@ -62,4 +65,10 @@ public class Deal {
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
+
+    @Column(name = "disputed_at")
+    private LocalDateTime disputedAt;
+
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
 }

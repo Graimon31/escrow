@@ -41,11 +41,72 @@ public class DealService {
         deal.setCurrency(request.getCurrency() != null ? request.getCurrency() : "RUB");
         deal.setDepositorId(depositorId);
         deal.setBeneficiaryId(request.getBeneficiaryId());
-        deal.setStatus(DealStatus.CREATED);
+        deal.setStatus(DealStatus.DRAFT);
         dealRepository.save(deal);
 
-        recordEvent(deal, "DEAL_CREATED", depositorId, "DEPOSITOR", null, DealStatus.CREATED);
+        recordEvent(deal, "DEAL_CREATED", depositorId, "DEPOSITOR", null, DealStatus.DRAFT);
         dealEventProducer.publish("DEAL_CREATED", deal);
+
+        return DealResponse.from(deal);
+    }
+
+    @Transactional
+    public DealResponse submitDeal(UUID dealId, UUID userId, String userRole) {
+        Deal deal = findDealOrThrow(dealId);
+        if (!deal.getDepositorId().equals(userId)) {
+            throw new SecurityException("Only depositor can submit the deal");
+        }
+        DealStateMachine.validate(deal.getStatus(), DealStatus.AWAITING_AGREEMENT);
+
+        DealStatus previous = deal.getStatus();
+        deal.setStatus(DealStatus.AWAITING_AGREEMENT);
+        dealRepository.save(deal);
+
+        recordEvent(deal, "DEAL_SUBMITTED", userId, userRole, previous, DealStatus.AWAITING_AGREEMENT);
+        dealEventProducer.publish("DEAL_SUBMITTED", deal);
+
+        return DealResponse.from(deal);
+    }
+
+    @Transactional
+    public DealResponse agreeDeal(UUID dealId, UUID userId, String userRole) {
+        Deal deal = findDealOrThrow(dealId);
+        if (!deal.getBeneficiaryId().equals(userId)) {
+            throw new SecurityException("Only beneficiary can agree to the deal");
+        }
+        DealStateMachine.validate(deal.getStatus(), DealStatus.AGREED);
+
+        DealStatus previous = deal.getStatus();
+        deal.setStatus(DealStatus.AGREED);
+        deal.setAgreedAt(LocalDateTime.now());
+        dealRepository.save(deal);
+
+        // Auto-transition to AWAITING_FUNDING
+        DealStateMachine.validate(deal.getStatus(), DealStatus.AWAITING_FUNDING);
+        deal.setStatus(DealStatus.AWAITING_FUNDING);
+        dealRepository.save(deal);
+
+        recordEvent(deal, "DEAL_AGREED", userId, userRole, previous, DealStatus.AWAITING_FUNDING);
+        dealEventProducer.publish("DEAL_AGREED", deal);
+
+        return DealResponse.from(deal);
+    }
+
+    @Transactional
+    public DealResponse declineDeal(UUID dealId, UUID userId, String userRole) {
+        Deal deal = findDealOrThrow(dealId);
+        if (!deal.getBeneficiaryId().equals(userId)) {
+            throw new SecurityException("Only beneficiary can decline the deal");
+        }
+        DealStateMachine.validate(deal.getStatus(), DealStatus.CANCELLED);
+
+        DealStatus previous = deal.getStatus();
+        deal.setStatus(DealStatus.CANCELLED);
+        deal.setCancelledAt(LocalDateTime.now());
+        dealRepository.save(deal);
+
+        recordEvent(deal, "DEAL_DECLINED", userId, userRole, previous, DealStatus.CANCELLED);
+        dealEventProducer.publish("DEAL_DECLINED", deal);
 
         return DealResponse.from(deal);
     }
@@ -56,26 +117,40 @@ public class DealService {
         if (!deal.getDepositorId().equals(userId)) {
             throw new SecurityException("Only depositor can fund the deal");
         }
-        DealStateMachine.validate(deal.getStatus(), DealStatus.FUNDED);
-
-        // Call payment-service to hold funds
-        paymentServiceClient.post()
-                .uri("/internal/payments/hold")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of(
-                        "dealId", deal.getId(),
-                        "depositorId", deal.getDepositorId(),
-                        "amount", deal.getAmount()
-                ))
-                .retrieve()
-                .toBodilessEntity();
+        DealStateMachine.validate(deal.getStatus(), DealStatus.FUNDING_PROCESSING);
 
         DealStatus previous = deal.getStatus();
+        deal.setStatus(DealStatus.FUNDING_PROCESSING);
+        dealRepository.save(deal);
+
+        // Call payment-service to hold funds
+        try {
+            paymentServiceClient.post()
+                    .uri("/internal/payments/hold")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "dealId", deal.getId(),
+                            "depositorId", deal.getDepositorId(),
+                            "amount", deal.getAmount()
+                    ))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            // Revert to AWAITING_FUNDING on payment failure
+            deal.setStatus(DealStatus.AWAITING_FUNDING);
+            dealRepository.save(deal);
+            throw new RuntimeException("Payment failed: " + e.getMessage(), e);
+        }
+
         deal.setStatus(DealStatus.FUNDED);
         deal.setFundedAt(LocalDateTime.now());
         dealRepository.save(deal);
 
-        recordEvent(deal, "DEAL_FUNDED", userId, userRole, previous, DealStatus.FUNDED);
+        // Auto-transition to AWAITING_FULFILLMENT
+        deal.setStatus(DealStatus.AWAITING_FULFILLMENT);
+        dealRepository.save(deal);
+
+        recordEvent(deal, "DEAL_FUNDED", userId, userRole, previous, DealStatus.AWAITING_FULFILLMENT);
         dealEventProducer.publish("DEAL_FUNDED", deal);
 
         return DealResponse.from(deal);
@@ -87,14 +162,14 @@ public class DealService {
         if (!deal.getBeneficiaryId().equals(userId)) {
             throw new SecurityException("Only beneficiary can mark delivery");
         }
-        DealStateMachine.validate(deal.getStatus(), DealStatus.DELIVERED);
+        DealStateMachine.validate(deal.getStatus(), DealStatus.AWAITING_REVIEW);
 
         DealStatus previous = deal.getStatus();
-        deal.setStatus(DealStatus.DELIVERED);
+        deal.setStatus(DealStatus.AWAITING_REVIEW);
         deal.setDeliveredAt(LocalDateTime.now());
         dealRepository.save(deal);
 
-        recordEvent(deal, "DEAL_DELIVERED", userId, userRole, previous, DealStatus.DELIVERED);
+        recordEvent(deal, "DEAL_DELIVERED", userId, userRole, previous, DealStatus.AWAITING_REVIEW);
         dealEventProducer.publish("DEAL_DELIVERED", deal);
 
         return DealResponse.from(deal);
@@ -108,6 +183,10 @@ public class DealService {
         }
         DealStateMachine.validate(deal.getStatus(), DealStatus.RELEASING);
 
+        DealStatus previous = deal.getStatus();
+        deal.setStatus(DealStatus.RELEASING);
+        dealRepository.save(deal);
+
         // Call payment-service to release funds
         paymentServiceClient.post()
                 .uri("/internal/payments/release")
@@ -119,13 +198,115 @@ public class DealService {
                 .retrieve()
                 .toBodilessEntity();
 
-        DealStatus previous = deal.getStatus();
         deal.setStatus(DealStatus.COMPLETED);
         deal.setCompletedAt(LocalDateTime.now());
         dealRepository.save(deal);
 
         recordEvent(deal, "DEAL_COMPLETED", userId, userRole, previous, DealStatus.COMPLETED);
         dealEventProducer.publish("DEAL_COMPLETED", deal);
+
+        return DealResponse.from(deal);
+    }
+
+    @Transactional
+    public DealResponse rejectDeal(UUID dealId, UUID userId, String userRole) {
+        Deal deal = findDealOrThrow(dealId);
+        if (!deal.getDepositorId().equals(userId)) {
+            throw new SecurityException("Only depositor can reject and request refund");
+        }
+        DealStateMachine.validate(deal.getStatus(), DealStatus.REFUNDING);
+
+        DealStatus previous = deal.getStatus();
+        deal.setStatus(DealStatus.REFUNDING);
+        dealRepository.save(deal);
+
+        // Call payment-service to refund
+        paymentServiceClient.post()
+                .uri("/internal/payments/refund")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of(
+                        "dealId", deal.getId(),
+                        "depositorId", deal.getDepositorId()
+                ))
+                .retrieve()
+                .toBodilessEntity();
+
+        deal.setStatus(DealStatus.REFUNDED);
+        dealRepository.save(deal);
+
+        recordEvent(deal, "DEAL_REFUNDED", userId, userRole, previous, DealStatus.REFUNDED);
+        dealEventProducer.publish("DEAL_REFUNDED", deal);
+
+        return DealResponse.from(deal);
+    }
+
+    @Transactional
+    public DealResponse disputeDeal(UUID dealId, UUID userId, String userRole) {
+        Deal deal = findDealOrThrow(dealId);
+        checkAccess(deal, userId);
+        DealStateMachine.validate(deal.getStatus(), DealStatus.DISPUTED);
+
+        DealStatus previous = deal.getStatus();
+        deal.setStatus(DealStatus.DISPUTED);
+        deal.setDisputedAt(LocalDateTime.now());
+        dealRepository.save(deal);
+
+        recordEvent(deal, "DEAL_DISPUTED", userId, userRole, previous, DealStatus.DISPUTED);
+        dealEventProducer.publish("DEAL_DISPUTED", deal);
+
+        return DealResponse.from(deal);
+    }
+
+    @Transactional
+    public DealResponse resolveDispute(UUID dealId, UUID userId, String userRole, String resolution) {
+        Deal deal = findDealOrThrow(dealId);
+        // Only operator/admin can resolve disputes
+        if (!"OPERATOR".equals(userRole) && !"ADMINISTRATOR".equals(userRole)) {
+            throw new SecurityException("Only operator or administrator can resolve disputes");
+        }
+
+        if ("RELEASE".equalsIgnoreCase(resolution)) {
+            DealStateMachine.validate(deal.getStatus(), DealStatus.RELEASING);
+            deal.setStatus(DealStatus.RELEASING);
+            dealRepository.save(deal);
+
+            paymentServiceClient.post()
+                    .uri("/internal/payments/release")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("dealId", deal.getId(), "beneficiaryId", deal.getBeneficiaryId()))
+                    .retrieve()
+                    .toBodilessEntity();
+
+            DealStatus previous = DealStatus.DISPUTED;
+            deal.setStatus(DealStatus.COMPLETED);
+            deal.setCompletedAt(LocalDateTime.now());
+            deal.setClosedAt(LocalDateTime.now());
+            dealRepository.save(deal);
+
+            recordEvent(deal, "DISPUTE_RESOLVED_RELEASE", userId, userRole, previous, DealStatus.COMPLETED);
+            dealEventProducer.publish("DEAL_COMPLETED", deal);
+        } else if ("REFUND".equalsIgnoreCase(resolution)) {
+            DealStateMachine.validate(deal.getStatus(), DealStatus.REFUNDING);
+            deal.setStatus(DealStatus.REFUNDING);
+            dealRepository.save(deal);
+
+            paymentServiceClient.post()
+                    .uri("/internal/payments/refund")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("dealId", deal.getId(), "depositorId", deal.getDepositorId()))
+                    .retrieve()
+                    .toBodilessEntity();
+
+            DealStatus previous = DealStatus.DISPUTED;
+            deal.setStatus(DealStatus.REFUNDED);
+            deal.setClosedAt(LocalDateTime.now());
+            dealRepository.save(deal);
+
+            recordEvent(deal, "DISPUTE_RESOLVED_REFUND", userId, userRole, previous, DealStatus.REFUNDED);
+            dealEventProducer.publish("DEAL_REFUNDED", deal);
+        } else {
+            throw new IllegalArgumentException("Resolution must be RELEASE or REFUND");
+        }
 
         return DealResponse.from(deal);
     }

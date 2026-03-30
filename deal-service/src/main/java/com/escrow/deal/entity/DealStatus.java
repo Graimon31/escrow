@@ -1,16 +1,23 @@
 package com.escrow.deal.entity;
 
 public enum DealStatus {
-    CREATED,
+    DRAFT,
+    AWAITING_AGREEMENT,
+    AGREED,
+    AWAITING_FUNDING,
+    FUNDING_PROCESSING,
     FUNDED,
-    DELIVERED,
+    AWAITING_FULFILLMENT,
+    AWAITING_REVIEW,
     RELEASING,
     COMPLETED,
-    CANCELLED,
+    REFUNDING,
+    REFUNDED,
     DISPUTED,
-    RESOLVED;
+    CANCELLED,
+    CLOSED;
 
     public boolean isTerminal() {
-        return this == COMPLETED || this == CANCELLED || this == RESOLVED;
+        return this == COMPLETED || this == CANCELLED || this == REFUNDED || this == CLOSED;
     }
 }
