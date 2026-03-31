@@ -27,6 +27,7 @@ testcontainers-junit = { module = "org.testcontainers:junit-jupiter" }
 testcontainers-postgresql = { module = "org.testcontainers:postgresql" }
 spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
 micrometer-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version = "7.4" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

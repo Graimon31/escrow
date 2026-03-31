@@ -12,7 +12,7 @@ datasources:
     type: elasticsearch
     access: proxy
     url: http://elasticsearch:9200
-    database: "logstash-*"
+    database: "filebeat-*"
     jsonData:
       esVersion: "8.0.0"
       timeField: "@timestamp"

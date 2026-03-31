@@ -25,6 +25,7 @@ subprojects {
     dependencies {
         implementation(rootProject.libs.spring.boot.starter.actuator)
         runtimeOnly(rootProject.libs.micrometer.prometheus)
+        runtimeOnly(rootProject.libs.logstash.logback.encoder)
         compileOnly(rootProject.libs.lombok)
         annotationProcessor(rootProject.libs.lombok)
         testImplementation(rootProject.libs.spring.boot.starter.test)
