@@ -1,0 +1,14 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: deals
+  flyway:
+    schemas: deals
+    default-schema: deals
+  kafka:
+    bootstrap-servers: localhost:0
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration

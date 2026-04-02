@@ -1,0 +1,32 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/escrow?currentSchema=auth
+    username: escrow
+    password: escrow
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: auth
+    open-in-view: false
+  flyway:
+    schemas: auth
+    default-schema: auth
+
+jwt:
+  secret: Y2hhbmdlLXRoaXMtdG8tYS1sb25nLXNlY3VyZS1yYW5kb20tYmFzZTY0LWtleS1pbi1wcm9kdWN0aW9u
+  access-token-expiration-ms: 900000
+  refresh-token-expiration-ms: 604800000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

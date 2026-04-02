@@ -1,0 +1,36 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: deal-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/escrow?currentSchema=deals
+    username: escrow
+    password: escrow
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: deals
+    open-in-view: false
+  flyway:
+    schemas: deals
+    default-schema: deals
+  kafka:
+    bootstrap-servers: localhost:9093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+services:
+  payment-service:
+    url: http://localhost:8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

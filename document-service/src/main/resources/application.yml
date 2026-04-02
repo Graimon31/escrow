@@ -1,0 +1,28 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: document-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/escrow?currentSchema=documents
+    username: escrow
+    password: escrow
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: documents
+  flyway:
+    schemas: documents
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

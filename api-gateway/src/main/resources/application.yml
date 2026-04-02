@@ -1,0 +1,73 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+
+        - id: deal-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/deals/**
+          filters:
+            - JwtAuth
+
+        - id: payment-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - JwtAuth
+
+        - id: notification-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - JwtAuth
+
+        - id: admin-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/admin/**
+          filters:
+            - JwtAuth
+
+        - id: operator-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/operator/**
+          filters:
+            - JwtAuth
+
+        - id: audit-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/audit/**
+          filters:
+            - JwtAuth
+
+        - id: document-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/documents/**
+          filters:
+            - JwtAuth
+
+jwt:
+  secret: Y2hhbmdlLXRoaXMtdG8tYS1sb25nLXNlY3VyZS1yYW5kb20tYmFzZTY0LWtleS1pbi1wcm9kdWN0aW9u
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
