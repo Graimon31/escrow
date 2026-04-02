@@ -111,6 +111,36 @@
 - [x] `./gradlew build -x test` — BUILD SUCCESSFUL
 - [x] `cd frontend && npm run build` — BUILD SUCCESSFUL (13 routes)
 
+### Step 14: Architecture Upgrade — Financial Core & New Services (2026-04-02)
+- [x] **Double-Entry Ledger**: ledger_accounts + ledger_entries tables, DEBIT/CREDIT balanced transfers
+  - Account types: AVAILABLE (user), ESCROW_HOLDING (system)
+  - All financial operations produce paired ledger entries with transaction IDs
+  - Deadlock prevention: consistent account ordering in transfers
+- [x] **Escrow Account State Machine** (10 states, parallel to Deal SM):
+  - NOT_CREATED → OPENED → FUNDS_DEPOSITING → FUNDS_SECURED → RELEASING/REFUNDING → terminal
+  - Terminal: RELEASED_TO_BENEFICIARY, REFUNDED_TO_DEPOSITOR, CANCELLED
+  - EscrowAccountStateMachine with validated transitions
+- [x] **Transactional Outbox**: outbox_events table + OutboxPublisher (@Scheduled) to Kafka
+- [x] **Idempotency Keys**: idempotency_keys table checked on hold/release/refund endpoints
+- [x] **Audit Service** (new microservice, port 8085):
+  - AuditLog entity, Kafka consumers on deal-events + escrow events
+  - REST: GET /api/audit (paginated), GET /api/audit/deal/{dealId}, GET /api/audit/user/{userId}
+  - Flyway V1, Dockerfile, gateway route
+- [x] **Document Service** (new microservice, port 8086):
+  - File upload/download (filesystem /app/uploads), per-deal document listing
+  - REST: POST /api/documents/upload, GET /api/documents/deal/{dealId}, GET /api/documents/{id}/download
+  - Flyway V1, Dockerfile, gateway route
+- [x] **Frontend Updates**:
+  - Escrow account card on deal detail page (balance, status, timestamps)
+  - Documents page: deal selector, file upload, document table with download
+  - Admin page: user management, role changes, enable/disable
+  - Operator page: stats dashboard, deal filter, dispute resolution
+- [x] **Observability**: Filebeat log shipping, JSON structured logging (logstash-logback-encoder)
+- [x] **Bug fix**: Payment-service /refund and /dispute endpoints — changed from @RequestParam to @RequestBody DTOs (matching deal-service caller)
+- [x] **Docker configs**: Added application-docker.yml for auth-service and payment-service
+- [x] `./gradlew build -x test` — BUILD SUCCESSFUL (36 tasks)
+- [x] `cd frontend && npm run build` — BUILD SUCCESSFUL (13 routes)
+
 ## All Steps Complete
 
 | Step | Name | Status |
@@ -129,3 +159,4 @@
 | 11 | Operator + admin roles | ✅ |
 | 12 | Dispute flow | ✅ |
 | 13 | Observability stack | ✅ |
+| 14 | Architecture upgrade | ✅ |

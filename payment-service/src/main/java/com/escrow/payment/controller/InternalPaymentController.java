@@ -1,6 +1,8 @@
 package com.escrow.payment.controller;
 
+import com.escrow.payment.dto.DisputeRequest;
 import com.escrow.payment.dto.HoldRequest;
+import com.escrow.payment.dto.RefundRequest;
 import com.escrow.payment.dto.ReleaseRequest;
 import com.escrow.payment.service.PaymentService;
 import jakarta.validation.Valid;
@@ -9,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/internal/payments")
@@ -45,11 +46,10 @@ public class InternalPaymentController {
 
     @PostMapping("/refund")
     public ResponseEntity<?> refundFunds(
-            @RequestParam UUID dealId,
-            @RequestParam UUID depositorId,
+            @Valid @RequestBody RefundRequest request,
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
         try {
-            paymentService.refundFunds(dealId, depositorId, idempotencyKey);
+            paymentService.refundFunds(request.getDealId(), request.getDepositorId(), idempotencyKey);
             return ResponseEntity.ok(Map.of("status", "REFUNDED"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -57,8 +57,8 @@ public class InternalPaymentController {
     }
 
     @PostMapping("/dispute")
-    public ResponseEntity<?> markDisputed(@RequestParam UUID dealId) {
-        paymentService.markDisputed(dealId);
+    public ResponseEntity<?> markDisputed(@Valid @RequestBody DisputeRequest request) {
+        paymentService.markDisputed(request.getDealId());
         return ResponseEntity.ok(Map.of("status", "DISPUTED"));
     }
 }

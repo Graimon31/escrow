@@ -1,6 +1,17 @@
-# MVP Complete
+# MVP Complete — Architecture Upgraded
 
-All 14 steps (0–13) have been implemented. The escrow platform MVP is fully functional.
+Steps 0–14 implemented. The escrow platform MVP includes 7 microservices with double-entry ledger, escrow account state machine, transactional outbox, audit trail, and document management.
+
+## Architecture (7 Services)
+| Service | Port | Domain |
+|---------|------|--------|
+| api-gateway | 8080 | Routing, JWT validation, CORS |
+| auth-service | 8081 | Registration, login, JWT, roles, admin API |
+| deal-service | 8082 | Deal lifecycle (15-state SM), operator API |
+| payment-service | 8083 | Double-entry ledger, escrow accounts (10-state SM), outbox |
+| notification-service | 8084 | Kafka consumer, in-app notifications |
+| audit-service | 8085 | Immutable event log from Kafka |
+| document-service | 8086 | File upload/download per deal |
 
 ## How to Run
 ```bash
@@ -14,15 +25,7 @@ docker compose up --build
 | Grafana | http://localhost:3001 | admin / admin |
 | Prometheus | http://localhost:9090 | — |
 | Kibana | http://localhost:5601 | — |
-
-## API Endpoints
-| Service | URL |
-|---------|-----|
-| API Gateway | http://localhost:8080 |
-| Auth Service | http://localhost:8081 |
-| Deal Service | http://localhost:8082 |
-| Payment Service | http://localhost:8083 |
-| Notification Service | http://localhost:8084 |
+| Elasticsearch | http://localhost:9200 | — |
 
 ## Testing the Full Flow
 1. Register as DEPOSITOR at /register
@@ -32,12 +35,21 @@ docker compose up --build
 5. Register as OPERATOR to access /operator panel
 6. Register as ADMINISTRATOR to access /admin panel
 7. Open a dispute, resolve it from operator panel
+8. Upload documents on /documents page
+9. Check Grafana dashboards for metrics
+10. Check Kibana for service logs (create index pattern: filebeat-*)
+
+## Key Financial Features
+- **Double-entry ledger**: Every money movement produces balanced DEBIT+CREDIT entries
+- **Escrow account SM**: Tracks escrow lifecycle independently from deal SM
+- **Idempotency**: Financial operations are idempotent via Idempotency-Key header
+- **Transactional outbox**: Prevents dual-write problems between DB and Kafka
 
 ## Future Enhancements
-- Document upload/management
-- Real-time WebSocket notifications
-- Email notifications via SMTP
+- Saga orchestrator for distributed transaction coordination
+- WebSocket real-time notifications
+- Email/SMS notification channels
 - Payment gateway integration (replacing mock accounts)
-- Advanced dispute chat
-- Audit log export
-- Rate limiting and API throttling
+- Correlation IDs for cross-service tracing
+- Custom business metrics in Prometheus/Grafana
+- Advanced dispute chat/messaging
