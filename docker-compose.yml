@@ -161,6 +161,55 @@ services:
       retries: 5
       start_period: 30s
 
+  audit-service:
+    build:
+      context: .
+      dockerfile: audit-service/Dockerfile
+    container_name: escrow-audit
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/escrow?currentSchema=audit
+      SPRING_DATASOURCE_USERNAME: escrow
+      SPRING_DATASOURCE_PASSWORD: escrow
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8085/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  document-service:
+    build:
+      context: .
+      dockerfile: document-service/Dockerfile
+    container_name: escrow-document
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/escrow?currentSchema=documents
+      SPRING_DATASOURCE_USERNAME: escrow
+      SPRING_DATASOURCE_PASSWORD: escrow
+    volumes:
+      - document-uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8086/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
   frontend:
     build:
       context: ./frontend
@@ -258,3 +307,4 @@ volumes:
   grafana-data:
   elasticsearch-data:
   filebeat-data:
+  document-uploads:

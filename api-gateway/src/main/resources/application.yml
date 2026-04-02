@@ -49,6 +49,20 @@ spring:
           filters:
             - JwtAuth
 
+        - id: audit-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/audit/**
+          filters:
+            - JwtAuth
+
+        - id: document-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/documents/**
+          filters:
+            - JwtAuth
+
 jwt:
   secret: Y2hhbmdlLXRoaXMtdG8tYS1sb25nLXNlY3VyZS1yYW5kb20tYmFzZTY0LWtleS1pbi1wcm9kdWN0aW9u
 

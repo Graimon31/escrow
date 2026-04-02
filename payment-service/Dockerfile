@@ -3,7 +3,7 @@ WORKDIR /app
 COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle ./gradle
 COPY payment-service ./payment-service
-RUN mkdir -p api-gateway auth-service deal-service notification-service \
+RUN mkdir -p api-gateway auth-service deal-service notification-service audit-service document-service \
     && chmod +x gradlew && ./gradlew :payment-service:bootJar -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine

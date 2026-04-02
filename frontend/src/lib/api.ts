@@ -216,6 +216,73 @@ export function apiOperatorListDeals(status?: string): Promise<DealResponse[]> {
   return apiFetch(`/api/operator/deals${query}`);
 }
 
+// ── Escrow Account API ──────────────────────────────────────
+
+export interface EscrowAccountResponse {
+  id: string;
+  dealId: string;
+  depositorId: string;
+  beneficiaryId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+  fundedAt: string | null;
+  releasedAt: string | null;
+  refundedAt: string | null;
+}
+
+export function apiGetEscrowAccount(dealId: string): Promise<EscrowAccountResponse> {
+  return apiFetch(`/api/payments/escrow/${dealId}`);
+}
+
+export function apiGetLedgerEntries(dealId: string): Promise<unknown[]> {
+  return apiFetch(`/api/payments/escrow/${dealId}/ledger`);
+}
+
+export function apiGetUserAccount(): Promise<{ id: string; userId: string; balance: number; currency: string }> {
+  return apiFetch('/api/payments/account');
+}
+
+// ── Document API ────────────────────────────────────────────
+
+export interface DocumentResponse {
+  id: string;
+  dealId: string;
+  uploaderId: string;
+  fileName: string;
+  contentType: string;
+  fileSize: number;
+  documentType: string;
+  createdAt: string;
+}
+
+export function apiGetDealDocuments(dealId: string): Promise<DocumentResponse[]> {
+  return apiFetch(`/api/documents/deal/${dealId}`);
+}
+
+export function apiUploadDocument(dealId: string, file: File, documentType?: string): Promise<DocumentResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('dealId', dealId);
+  if (documentType) formData.append('documentType', documentType);
+
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  return fetch(`${API_BASE_URL}/api/documents/upload?dealId=${dealId}${documentType ? '&documentType=' + documentType : ''}`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  }).then(async (res) => {
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  });
+}
+
+// ── Operator API ────────────────────────────────────────────
+
 export function apiOperatorGetStats(): Promise<{
   total: number;
   disputed: number;

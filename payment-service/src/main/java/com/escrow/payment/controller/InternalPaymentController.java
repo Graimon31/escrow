@@ -19,9 +19,12 @@ public class InternalPaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/hold")
-    public ResponseEntity<?> holdFunds(@Valid @RequestBody HoldRequest request) {
+    public ResponseEntity<?> holdFunds(
+            @Valid @RequestBody HoldRequest request,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
         try {
-            paymentService.holdFunds(request.getDealId(), request.getDepositorId(), request.getAmount());
+            paymentService.holdFunds(request.getDealId(), request.getDepositorId(),
+                    request.getAmount(), idempotencyKey);
             return ResponseEntity.ok(Map.of("status", "HELD"));
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -29,9 +32,11 @@ public class InternalPaymentController {
     }
 
     @PostMapping("/release")
-    public ResponseEntity<?> releaseFunds(@Valid @RequestBody ReleaseRequest request) {
+    public ResponseEntity<?> releaseFunds(
+            @Valid @RequestBody ReleaseRequest request,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
         try {
-            paymentService.releaseFunds(request.getDealId(), request.getBeneficiaryId());
+            paymentService.releaseFunds(request.getDealId(), request.getBeneficiaryId(), idempotencyKey);
             return ResponseEntity.ok(Map.of("status", "RELEASED"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -41,12 +46,19 @@ public class InternalPaymentController {
     @PostMapping("/refund")
     public ResponseEntity<?> refundFunds(
             @RequestParam UUID dealId,
-            @RequestParam UUID depositorId) {
+            @RequestParam UUID depositorId,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
         try {
-            paymentService.refundFunds(dealId, depositorId);
+            paymentService.refundFunds(dealId, depositorId, idempotencyKey);
             return ResponseEntity.ok(Map.of("status", "REFUNDED"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @PostMapping("/dispute")
+    public ResponseEntity<?> markDisputed(@RequestParam UUID dealId) {
+        paymentService.markDisputed(dealId);
+        return ResponseEntity.ok(Map.of("status", "DISPUTED"));
     }
 }

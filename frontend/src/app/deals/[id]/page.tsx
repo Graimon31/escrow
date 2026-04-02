@@ -9,9 +9,11 @@ import {
   apiGetDeal,
   apiGetDealEvents,
   apiDealAction,
+  apiGetEscrowAccount,
   type DealResponse,
   type DealEventResponse,
   type DealStatus,
+  type EscrowAccountResponse,
 } from '@/lib/api';
 import Link from 'next/link';
 
@@ -28,6 +30,7 @@ function DealDetailContent() {
   const { user } = useAuth();
   const [deal, setDeal] = useState<DealResponse | null>(null);
   const [events, setEvents] = useState<DealEventResponse[]>([]);
+  const [escrowAccount, setEscrowAccount] = useState<EscrowAccountResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState('');
@@ -35,7 +38,11 @@ function DealDetailContent() {
 
   const loadDeal = useCallback(() => {
     Promise.all([apiGetDeal(id), apiGetDealEvents(id)])
-      .then(([d, e]) => { setDeal(d); setEvents(e); })
+      .then(([d, e]) => {
+        setDeal(d);
+        setEvents(e);
+        apiGetEscrowAccount(id).then(setEscrowAccount).catch(() => {});
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
@@ -133,6 +140,53 @@ function DealDetailContent() {
               </div>
             </dl>
           </div>
+
+          {/* Escrow Account */}
+          {escrowAccount && (
+            <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold text-amber-900">Escrow Account</h2>
+              <dl className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <dt className="text-sm font-medium text-amber-700">Held in Escrow</dt>
+                  <dd className="mt-1 text-xl font-bold text-amber-900">
+                    {Number(escrowAccount.amount).toLocaleString()} {escrowAccount.currency}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-amber-700">Escrow Status</dt>
+                  <dd className="mt-1">
+                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                      escrowAccount.status === 'FUNDS_SECURED' ? 'bg-green-100 text-green-800' :
+                      escrowAccount.status === 'RELEASED_TO_BENEFICIARY' ? 'bg-blue-100 text-blue-800' :
+                      escrowAccount.status === 'REFUNDED_TO_DEPOSITOR' ? 'bg-orange-100 text-orange-800' :
+                      escrowAccount.status === 'DISPUTED' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {escrowAccount.status.replace(/_/g, ' ')}
+                    </span>
+                  </dd>
+                </div>
+                {escrowAccount.fundedAt && (
+                  <div>
+                    <dt className="text-sm font-medium text-amber-700">Funded At</dt>
+                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.fundedAt).toLocaleString()}</dd>
+                  </div>
+                )}
+                {escrowAccount.releasedAt && (
+                  <div>
+                    <dt className="text-sm font-medium text-amber-700">Released At</dt>
+                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.releasedAt).toLocaleString()}</dd>
+                  </div>
+                )}
+                {escrowAccount.refundedAt && (
+                  <div>
+                    <dt className="text-sm font-medium text-amber-700">Refunded At</dt>
+                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.refundedAt).toLocaleString()}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          )}
 
           {/* Timeline */}
           <div className="rounded-lg bg-white p-6 shadow-sm">

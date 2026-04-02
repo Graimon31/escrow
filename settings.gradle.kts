@@ -5,5 +5,7 @@ include(
     "auth-service",
     "deal-service",
     "payment-service",
-    "notification-service"
+    "notification-service",
+    "audit-service",
+    "document-service"
 )

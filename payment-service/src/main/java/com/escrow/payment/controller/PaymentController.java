@@ -1,6 +1,7 @@
 package com.escrow.payment.controller;
 
 import com.escrow.payment.dto.AccountResponse;
+import com.escrow.payment.dto.EscrowAccountResponse;
 import com.escrow.payment.dto.TransactionResponse;
 import com.escrow.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,20 @@ public class PaymentController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/escrow/{dealId}")
+    public ResponseEntity<?> getEscrowAccount(@PathVariable UUID dealId) {
+        try {
+            EscrowAccountResponse response = paymentService.getEscrowAccount(dealId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/escrow/{dealId}/ledger")
+    public ResponseEntity<?> getLedgerEntries(@PathVariable UUID dealId) {
+        return ResponseEntity.ok(paymentService.getLedgerEntries(dealId));
     }
 }

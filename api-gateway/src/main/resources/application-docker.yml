@@ -41,3 +41,17 @@ spring:
             - Path=/api/operator/**
           filters:
             - JwtAuth
+
+        - id: audit-service
+          uri: http://audit-service:8085
+          predicates:
+            - Path=/api/audit/**
+          filters:
+            - JwtAuth
+
+        - id: document-service
+          uri: http://document-service:8086
+          predicates:
+            - Path=/api/documents/**
+          filters:
+            - JwtAuth
