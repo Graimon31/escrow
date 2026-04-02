@@ -7,10 +7,10 @@ import Link from 'next/link';
 import { apiGetUnreadCount } from '@/lib/api';
 
 const ROLE_LABELS: Record<string, string> = {
-  DEPOSITOR: 'Depositor',
-  BENEFICIARY: 'Beneficiary',
-  OPERATOR: 'Operator',
-  ADMINISTRATOR: 'Administrator',
+  DEPOSITOR: 'Депонент',
+  BENEFICIARY: 'Бенефициар',
+  OPERATOR: 'Оператор',
+  ADMINISTRATOR: 'Администратор',
 };
 
 export default function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
@@ -67,7 +67,7 @@ export default function TopBar({ onToggleSidebar }: { onToggleSidebar: () => voi
           </svg>
           <input
             type="text"
-            placeholder="Search deals..."
+            placeholder="Поиск сделок..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -122,13 +122,13 @@ export default function TopBar({ onToggleSidebar }: { onToggleSidebar: () => voi
                   onClick={() => setUserMenuOpen(false)}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                 >
-                  Settings
+                  Настройки
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
                 >
-                  Logout
+                  Выйти
                 </button>
               </div>
             </>

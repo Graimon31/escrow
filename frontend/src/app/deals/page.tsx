@@ -13,6 +13,23 @@ const ALL_STATUSES: DealStatus[] = [
   'COMPLETED', 'REFUNDING', 'REFUNDED', 'DISPUTED', 'CANCELLED', 'CLOSED',
 ];
 
+const STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Черновик',
+  AWAITING_AGREEMENT: 'Ожидает согласия',
+  AWAITING_FUNDING: 'Ожидает оплаты',
+  FUNDING_PROCESSING: 'Обработка платежа',
+  FUNDED: 'Оплачена',
+  AWAITING_FULFILLMENT: 'Ожидает исполнения',
+  AWAITING_REVIEW: 'Ожидает проверки',
+  RELEASING: 'Выпуск средств',
+  COMPLETED: 'Завершена',
+  REFUNDING: 'Возврат средств',
+  REFUNDED: 'Возвращена',
+  DISPUTED: 'Спор',
+  CANCELLED: 'Отменена',
+  CLOSED: 'Закрыта',
+};
+
 export default function DealsPage() {
   return (
     <ProtectedRoute>
@@ -46,12 +63,12 @@ function DealsContent() {
   return (
     <>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Deals</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Сделки</h1>
         <Link
           href="/deals/new"
           className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
-          Create Deal
+          Создать сделку
         </Link>
       </div>
 
@@ -62,9 +79,9 @@ function DealsContent() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
-          <option value="">All Statuses</option>
+          <option value="">Все статусы</option>
           {ALL_STATUSES.map((s) => (
-            <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+            <option key={s} value={s}>{STATUS_LABELS[s] || s}</option>
           ))}
         </select>
         <select
@@ -72,9 +89,9 @@ function DealsContent() {
           onChange={(e) => setRoleFilter(e.target.value)}
           className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
-          <option value="">All Roles</option>
-          <option value="depositor">As Depositor</option>
-          <option value="beneficiary">As Beneficiary</option>
+          <option value="">Все роли</option>
+          <option value="depositor">Как депонент</option>
+          <option value="beneficiary">Как бенефициар</option>
         </select>
       </div>
 
@@ -87,14 +104,14 @@ function DealsContent() {
         <div className="rounded-lg bg-red-50 p-6 text-center text-sm text-red-700">
           {error}
           <button onClick={() => window.location.reload()} className="ml-2 underline">
-            Retry
+            Повторить
           </button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-lg bg-white p-12 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No deals found</p>
+          <p className="text-sm text-gray-500">Сделки не найдены</p>
           <p className="mt-1 text-xs text-gray-400">
-            {deals.length === 0 ? 'Create your first deal to get started.' : 'Try adjusting your filters.'}
+            {deals.length === 0 ? 'Создайте первую сделку, чтобы начать.' : 'Попробуйте изменить фильтры.'}
           </p>
         </div>
       ) : (
@@ -102,11 +119,11 @@ function DealsContent() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Role</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Название</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Статус</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Сумма</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Роль</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Дата</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -122,13 +139,13 @@ function DealsContent() {
                     <DealStatusBadge status={deal.status} />
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                    {Number(deal.amount).toLocaleString()} {deal.currency}
+                    {Number(deal.amount).toLocaleString('ru-RU')} {deal.currency}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {deal.depositorId === user?.id ? 'Depositor' : 'Beneficiary'}
+                    {deal.depositorId === user?.id ? 'Депонент' : 'Бенефициар'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {new Date(deal.createdAt).toLocaleDateString()}
+                    {new Date(deal.createdAt).toLocaleDateString('ru-RU')}
                   </td>
                 </tr>
               ))}

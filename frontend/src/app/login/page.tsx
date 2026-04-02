@@ -26,7 +26,7 @@ export default function LoginPage() {
       await login({ email, password });
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Ошибка входа');
     } finally {
       setSubmitting(false);
     }
@@ -36,7 +36,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          Sign in to Escrow
+          Вход в Escrow
         </h2>
 
         {error && (
@@ -63,7 +63,7 @@ export default function LoginPage() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
+              Пароль
             </label>
             <input
               id="password"
@@ -81,14 +81,14 @@ export default function LoginPage() {
             disabled={submitting}
             className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
           >
-            {submitting ? 'Signing in...' : 'Sign in'}
+            {submitting ? 'Вход...' : 'Войти'}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don&apos;t have an account?{' '}
+          Нет аккаунта?{' '}
           <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-            Register
+            Зарегистрироваться
           </Link>
         </p>
       </div>

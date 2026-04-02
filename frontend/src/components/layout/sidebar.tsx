@@ -12,13 +12,13 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
-  { href: '/deals', label: 'Deals', icon: DealsIcon },
-  { href: '/operator', label: 'Operator Panel', icon: OperatorIcon, roles: ['OPERATOR', 'ADMINISTRATOR'] },
-  { href: '/admin', label: 'Admin Panel', icon: AdminIcon, roles: ['ADMINISTRATOR'] },
-  { href: '/documents', label: 'Documents', icon: DocumentsIcon },
-  { href: '/notifications', label: 'Notifications', icon: NotificationsIcon },
-  { href: '/settings', label: 'Settings', icon: SettingsIcon },
+  { href: '/dashboard', label: 'Главная', icon: HomeIcon },
+  { href: '/deals', label: 'Сделки', icon: DealsIcon },
+  { href: '/operator', label: 'Панель оператора', icon: OperatorIcon, roles: ['OPERATOR', 'ADMINISTRATOR'] },
+  { href: '/admin', label: 'Администрирование', icon: AdminIcon, roles: ['ADMINISTRATOR'] },
+  { href: '/documents', label: 'Документы', icon: DocumentsIcon },
+  { href: '/notifications', label: 'Уведомления', icon: NotificationsIcon },
+  { href: '/settings', label: 'Настройки', icon: SettingsIcon },
 ];
 
 export default function Sidebar() {
@@ -34,8 +34,16 @@ export default function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-gray-200 bg-white lg:block">
       <div className="flex h-16 items-center border-b border-gray-200 px-6">
-        <Link href="/dashboard" className="text-xl font-bold text-gray-900">
-          Escrow
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <svg className="h-7 w-7 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 9v0.5M12 14.5v0.5M9 12h0.5M14.5 12h0.5" />
+          </svg>
+          <div className="leading-tight">
+            <span className="block text-sm font-bold text-gray-900">ESCROW</span>
+            <span className="block text-[10px] font-semibold tracking-wider text-gray-500">PROTOCOL</span>
+          </div>
         </Link>
       </div>
 

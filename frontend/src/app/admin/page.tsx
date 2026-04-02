@@ -20,6 +20,20 @@ export default function AdminPage() {
 
 const ROLES = ['DEPOSITOR', 'BENEFICIARY', 'OPERATOR', 'ADMINISTRATOR'] as const;
 
+const ROLE_LABELS: Record<string, string> = {
+  DEPOSITOR: 'Депонент',
+  BENEFICIARY: 'Бенефициар',
+  OPERATOR: 'Оператор',
+  ADMINISTRATOR: 'Администратор',
+};
+
+const ROLE_LABELS_PLURAL: Record<string, string> = {
+  DEPOSITOR: 'Депонентов',
+  BENEFICIARY: 'Бенефициаров',
+  OPERATOR: 'Операторов',
+  ADMINISTRATOR: 'Администраторов',
+};
+
 const ROLE_COLORS: Record<string, string> = {
   DEPOSITOR: 'bg-blue-100 text-blue-700',
   BENEFICIARY: 'bg-green-100 text-green-700',
@@ -46,7 +60,7 @@ function AdminContent() {
   if (!isAdmin) {
     return (
       <div className="rounded-lg bg-red-50 p-6 text-center text-sm text-red-700">
-        Access denied. Administrator role required.
+        Доступ запрещён. Требуется роль администратора.
       </div>
     );
   }
@@ -85,19 +99,19 @@ function AdminContent() {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Admin Panel</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-900">Администрирование</h1>
 
-      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
         <div className="rounded-lg bg-gray-50 p-4">
           <p className="text-2xl font-bold text-gray-700">{users.length}</p>
-          <p className="text-sm text-gray-500">Total Users</p>
+          <p className="text-sm text-gray-500">Всего пользователей</p>
         </div>
         {ROLES.map((role) => {
           const count = users.filter((u) => u.role === role).length;
           return (
             <div key={role} className={`rounded-lg p-4 ${ROLE_COLORS[role]}`}>
               <p className="text-2xl font-bold">{count}</p>
-              <p className="text-sm">{role.charAt(0) + role.slice(1).toLowerCase()}s</p>
+              <p className="text-sm">{ROLE_LABELS_PLURAL[role]}</p>
             </div>
           );
         })}
@@ -107,11 +121,11 @@ function AdminContent() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Name</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Имя</th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Role</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Роль</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Статус</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Действия</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -127,13 +141,13 @@ function AdminContent() {
                     className={`rounded-md border-0 px-2 py-1 text-xs font-medium ${ROLE_COLORS[u.role]} ${u.id === user?.id ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                   >
                     {ROLES.map((r) => (
-                      <option key={r} value={r}>{r}</option>
+                      <option key={r} value={r}>{ROLE_LABELS[r]}</option>
                     ))}
                   </select>
                 </td>
                 <td className="px-4 py-3">
                   <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${u.enabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {u.enabled ? 'Active' : 'Disabled'}
+                    {u.enabled ? 'Активен' : 'Заблокирован'}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -148,7 +162,7 @@ function AdminContent() {
                           : 'bg-green-100 text-green-700 hover:bg-green-200'
                     }`}
                   >
-                    {u.enabled ? 'Disable' : 'Enable'}
+                    {u.enabled ? 'Заблокировать' : 'Разблокировать'}
                   </button>
                 </td>
               </tr>

@@ -17,6 +17,41 @@ import {
 } from '@/lib/api';
 import Link from 'next/link';
 
+const EVENT_LABELS: Record<string, string> = {
+  DEAL_CREATED: 'Сделка создана',
+  DEAL_SUBMITTED: 'Отправлена на согласование',
+  DEAL_AGREED: 'Согласована',
+  DEAL_DECLINED: 'Отклонена',
+  DEAL_FUNDED: 'Оплачена',
+  DEAL_DELIVERED: 'Исполнение подтверждено',
+  DEAL_COMPLETED: 'Завершена',
+  DEAL_REFUNDED: 'Возврат средств',
+  DEAL_DISPUTED: 'Открыт спор',
+  DEAL_CANCELLED: 'Отменена',
+  DISPUTE_RESOLVED_RELEASE: 'Спор разрешён: выплата',
+  DISPUTE_RESOLVED_REFUND: 'Спор разрешён: возврат',
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  DEPOSITOR: 'Депонент',
+  BENEFICIARY: 'Бенефициар',
+  OPERATOR: 'Оператор',
+  ADMINISTRATOR: 'Администратор',
+};
+
+const ESCROW_STATUS_LABELS: Record<string, string> = {
+  NOT_CREATED: 'Не создан',
+  OPENED: 'Открыт',
+  FUNDS_DEPOSITING: 'Внесение средств',
+  FUNDS_SECURED: 'Средства защищены',
+  RELEASING: 'Выпуск средств',
+  RELEASED_TO_BENEFICIARY: 'Выплачено бенефициару',
+  REFUNDING: 'Возврат',
+  REFUNDED_TO_DEPOSITOR: 'Возвращено депоненту',
+  DISPUTED: 'Спор',
+  CANCELLED: 'Отменён',
+};
+
 export default function DealDetailPage() {
   return (
     <ProtectedRoute>
@@ -57,8 +92,9 @@ function DealDetailContent() {
       setDeal(updated);
       const newEvents = await apiGetDealEvents(id);
       setEvents(newEvents);
+      apiGetEscrowAccount(id).then(setEscrowAccount).catch(() => {});
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Action failed');
+      alert(e instanceof Error ? e.message : 'Ошибка выполнения');
     } finally {
       setActionLoading('');
     }
@@ -75,8 +111,8 @@ function DealDetailContent() {
   if (error || !deal) {
     return (
       <div className="rounded-lg bg-red-50 p-6 text-center text-sm text-red-700">
-        {error || 'Deal not found'}
-        <Link href="/deals" className="ml-2 underline">Back to deals</Link>
+        {error || 'Сделка не найдена'}
+        <Link href="/deals" className="ml-2 underline">К списку сделок</Link>
       </div>
     );
   }
@@ -89,7 +125,7 @@ function DealDetailContent() {
     <>
       {/* Header */}
       <div className="mb-6">
-        <Link href="/deals" className="text-sm text-gray-500 hover:text-gray-700">&larr; Back to deals</Link>
+        <Link href="/deals" className="text-sm text-gray-500 hover:text-gray-700">&larr; К списку сделок</Link>
         <div className="mt-2 flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">{deal.title}</h1>
           <DealStatusBadge status={deal.status} />
@@ -102,41 +138,41 @@ function DealDetailContent() {
         <div className="space-y-6 lg:col-span-2">
           {/* Deal Info */}
           <div className="rounded-lg bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Deal Information</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Информация о сделке</h2>
             <dl className="grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Amount</dt>
+                <dt className="text-sm font-medium text-gray-500">Сумма</dt>
                 <dd className="mt-1 text-lg font-semibold text-gray-900">
-                  {Number(deal.amount).toLocaleString()} {deal.currency}
+                  {Number(deal.amount).toLocaleString('ru-RU')} {deal.currency}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Status</dt>
+                <dt className="text-sm font-medium text-gray-500">Статус</dt>
                 <dd className="mt-1"><DealStatusBadge status={deal.status} /></dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Depositor</dt>
+                <dt className="text-sm font-medium text-gray-500">Депонент</dt>
                 <dd className="mt-1 text-sm text-gray-900 font-mono">
                   {deal.depositorId.slice(0, 8)}...
-                  {isDepositor && <span className="ml-1 text-blue-600">(You)</span>}
+                  {isDepositor && <span className="ml-1 text-blue-600">(Вы)</span>}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Beneficiary</dt>
+                <dt className="text-sm font-medium text-gray-500">Бенефициар</dt>
                 <dd className="mt-1 text-sm text-gray-900 font-mono">
                   {deal.beneficiaryId.slice(0, 8)}...
-                  {isBeneficiary && <span className="ml-1 text-blue-600">(You)</span>}
+                  {isBeneficiary && <span className="ml-1 text-blue-600">(Вы)</span>}
                 </dd>
               </div>
               {deal.description && (
                 <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500">Description</dt>
+                  <dt className="text-sm font-medium text-gray-500">Описание</dt>
                   <dd className="mt-1 text-sm text-gray-900">{deal.description}</dd>
                 </div>
               )}
               <div>
-                <dt className="text-sm font-medium text-gray-500">Created</dt>
-                <dd className="mt-1 text-sm text-gray-900">{new Date(deal.createdAt).toLocaleString()}</dd>
+                <dt className="text-sm font-medium text-gray-500">Дата создания</dt>
+                <dd className="mt-1 text-sm text-gray-900">{new Date(deal.createdAt).toLocaleString('ru-RU')}</dd>
               </div>
             </dl>
           </div>
@@ -144,16 +180,16 @@ function DealDetailContent() {
           {/* Escrow Account */}
           {escrowAccount && (
             <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-amber-900">Escrow Account</h2>
+              <h2 className="mb-4 text-lg font-semibold text-amber-900">Эскроу-счёт</h2>
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm font-medium text-amber-700">Held in Escrow</dt>
+                  <dt className="text-sm font-medium text-amber-700">Удержано на эскроу</dt>
                   <dd className="mt-1 text-xl font-bold text-amber-900">
-                    {Number(escrowAccount.amount).toLocaleString()} {escrowAccount.currency}
+                    {Number(escrowAccount.amount).toLocaleString('ru-RU')} {escrowAccount.currency}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-amber-700">Escrow Status</dt>
+                  <dt className="text-sm font-medium text-amber-700">Статус эскроу</dt>
                   <dd className="mt-1">
                     <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
                       escrowAccount.status === 'FUNDS_SECURED' ? 'bg-green-100 text-green-800' :
@@ -162,26 +198,26 @@ function DealDetailContent() {
                       escrowAccount.status === 'DISPUTED' ? 'bg-red-100 text-red-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
-                      {escrowAccount.status.replace(/_/g, ' ')}
+                      {ESCROW_STATUS_LABELS[escrowAccount.status] || escrowAccount.status.replace(/_/g, ' ')}
                     </span>
                   </dd>
                 </div>
                 {escrowAccount.fundedAt && (
                   <div>
-                    <dt className="text-sm font-medium text-amber-700">Funded At</dt>
-                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.fundedAt).toLocaleString()}</dd>
+                    <dt className="text-sm font-medium text-amber-700">Дата оплаты</dt>
+                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.fundedAt).toLocaleString('ru-RU')}</dd>
                   </div>
                 )}
                 {escrowAccount.releasedAt && (
                   <div>
-                    <dt className="text-sm font-medium text-amber-700">Released At</dt>
-                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.releasedAt).toLocaleString()}</dd>
+                    <dt className="text-sm font-medium text-amber-700">Дата выплаты</dt>
+                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.releasedAt).toLocaleString('ru-RU')}</dd>
                   </div>
                 )}
                 {escrowAccount.refundedAt && (
                   <div>
-                    <dt className="text-sm font-medium text-amber-700">Refunded At</dt>
-                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.refundedAt).toLocaleString()}</dd>
+                    <dt className="text-sm font-medium text-amber-700">Дата возврата</dt>
+                    <dd className="mt-1 text-sm text-amber-900">{new Date(escrowAccount.refundedAt).toLocaleString('ru-RU')}</dd>
                   </div>
                 )}
               </dl>
@@ -190,9 +226,9 @@ function DealDetailContent() {
 
           {/* Timeline */}
           <div className="rounded-lg bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Timeline</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Хронология</h2>
             {events.length === 0 ? (
-              <p className="text-sm text-gray-400">No events yet</p>
+              <p className="text-sm text-gray-400">Событий пока нет</p>
             ) : (
               <ol className="relative border-l border-gray-200 ml-3">
                 {events.map((ev) => (
@@ -202,12 +238,12 @@ function DealDetailContent() {
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-sm font-medium text-gray-900">
-                        {ev.eventType.replace(/_/g, ' ')}
+                        {EVENT_LABELS[ev.eventType] || ev.eventType.replace(/_/g, ' ')}
                       </span>
                       {ev.newStatus && <DealStatusBadge status={ev.newStatus} />}
                     </div>
                     <p className="mt-0.5 text-xs text-gray-500">
-                      {new Date(ev.createdAt).toLocaleString()} &middot; {ev.actorRole}
+                      {new Date(ev.createdAt).toLocaleString('ru-RU')} &middot; {ROLE_LABELS[ev.actorRole] || ev.actorRole}
                     </p>
                   </li>
                 ))}
@@ -219,7 +255,7 @@ function DealDetailContent() {
         {/* Right: Action Panel */}
         <div className="space-y-6">
           <div className="rounded-lg bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Actions</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Действия</h2>
             <ActionPanel
               deal={deal}
               isDepositor={isDepositor}
@@ -236,23 +272,23 @@ function DealDetailContent() {
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">Confirm Action</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Подтверждение</h3>
             <p className="mt-2 text-sm text-gray-600">
-              Are you sure you want to <strong>{confirmAction.label.toLowerCase()}</strong>?
+              Вы уверены, что хотите выполнить действие: <strong>{confirmAction.label.toLowerCase()}</strong>?
             </p>
             <div className="mt-4 flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmAction(null)}
                 className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                Cancel
+                Отмена
               </button>
               <button
                 onClick={() => executeAction(confirmAction.action, confirmAction.body)}
                 disabled={!!actionLoading}
                 className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                {actionLoading ? 'Processing...' : 'Confirm'}
+                {actionLoading ? 'Выполнение...' : 'Подтвердить'}
               </button>
             </div>
           </div>
@@ -275,7 +311,7 @@ function ActionPanel({ deal, isDepositor, isBeneficiary, isOperator, actionLoadi
   const actions = getAvailableActions(deal.status, isDepositor, isBeneficiary, isOperator);
 
   if (actions.length === 0) {
-    return <p className="text-sm text-gray-400">No actions available for current state</p>;
+    return <p className="text-sm text-gray-400">Нет доступных действий для текущего статуса</p>;
   }
 
   return (
@@ -287,7 +323,7 @@ function ActionPanel({ deal, isDepositor, isBeneficiary, isOperator, actionLoadi
           disabled={!!actionLoading}
           className={`w-full rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${a.style}`}
         >
-          {actionLoading === a.action ? 'Processing...' : a.label}
+          {actionLoading === a.action ? 'Выполнение...' : a.label}
         </button>
       ))}
     </div>
@@ -316,47 +352,47 @@ function getAvailableActions(
   switch (status) {
     case 'DRAFT':
       if (isDepositor) {
-        actions.push({ action: 'submit', label: 'Submit for Agreement', style: primary });
-        actions.push({ action: 'cancel', label: 'Cancel Deal', style: danger });
+        actions.push({ action: 'submit', label: 'Отправить на согласование', style: primary });
+        actions.push({ action: 'cancel', label: 'Отменить сделку', style: danger });
       }
       break;
     case 'AWAITING_AGREEMENT':
       if (isBeneficiary) {
-        actions.push({ action: 'agree', label: 'Accept Deal', style: success });
-        actions.push({ action: 'decline', label: 'Decline Deal', style: danger });
+        actions.push({ action: 'agree', label: 'Принять сделку', style: success });
+        actions.push({ action: 'decline', label: 'Отклонить сделку', style: danger });
       }
       if (isDepositor) {
-        actions.push({ action: 'cancel', label: 'Cancel Deal', style: secondary });
+        actions.push({ action: 'cancel', label: 'Отменить сделку', style: secondary });
       }
       break;
     case 'AWAITING_FUNDING':
       if (isDepositor) {
-        actions.push({ action: 'fund', label: 'Fund Deal', style: primary });
-        actions.push({ action: 'cancel', label: 'Cancel Deal', style: secondary });
+        actions.push({ action: 'fund', label: 'Внести средства', style: primary });
+        actions.push({ action: 'cancel', label: 'Отменить сделку', style: secondary });
       }
       break;
     case 'FUNDING_PROCESSING':
       break;
     case 'AWAITING_FULFILLMENT':
       if (isBeneficiary) {
-        actions.push({ action: 'deliver', label: 'Mark as Delivered', style: primary });
+        actions.push({ action: 'deliver', label: 'Подтвердить исполнение', style: primary });
       }
       if (isDepositor || isBeneficiary) {
-        actions.push({ action: 'dispute', label: 'Open Dispute', style: danger });
-        actions.push({ action: 'cancel', label: 'Cancel Deal', style: secondary });
+        actions.push({ action: 'dispute', label: 'Открыть спор', style: danger });
+        actions.push({ action: 'cancel', label: 'Отменить сделку', style: secondary });
       }
       break;
     case 'AWAITING_REVIEW':
       if (isDepositor) {
-        actions.push({ action: 'confirm', label: 'Confirm & Release Funds', style: success });
-        actions.push({ action: 'reject', label: 'Reject & Refund', style: danger });
-        actions.push({ action: 'dispute', label: 'Open Dispute', style: secondary });
+        actions.push({ action: 'confirm', label: 'Подтвердить и выплатить', style: success });
+        actions.push({ action: 'reject', label: 'Отклонить и вернуть', style: danger });
+        actions.push({ action: 'dispute', label: 'Открыть спор', style: secondary });
       }
       break;
     case 'DISPUTED':
       if (isOperator) {
-        actions.push({ action: 'resolve', label: 'Release to Beneficiary', style: success, body: { resolution: 'RELEASE' } });
-        actions.push({ action: 'resolve', label: 'Refund to Depositor', style: danger, body: { resolution: 'REFUND' } });
+        actions.push({ action: 'resolve', label: 'Выплатить бенефициару', style: success, body: { resolution: 'RELEASE' } });
+        actions.push({ action: 'resolve', label: 'Вернуть депоненту', style: danger, body: { resolution: 'REFUND' } });
       }
       break;
   }

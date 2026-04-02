@@ -28,7 +28,7 @@ export default function RegisterPage() {
       await register({ email, password, fullName, role });
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : 'Ошибка регистрации');
     } finally {
       setSubmitting(false);
     }
@@ -38,7 +38,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          Create an account
+          Создание аккаунта
         </h2>
 
         {error && (
@@ -50,7 +50,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-              Full Name
+              Полное имя
             </label>
             <input
               id="fullName"
@@ -59,7 +59,7 @@ export default function RegisterPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="John Doe"
+              placeholder="Иванов Иван Иванович"
             />
           </div>
 
@@ -80,7 +80,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
+              Пароль
             </label>
             <input
               id="password"
@@ -96,7 +96,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-              Role
+              Роль
             </label>
             <select
               id="role"
@@ -104,8 +104,8 @@ export default function RegisterPage() {
               onChange={(e) => setRole(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              <option value="DEPOSITOR">Depositor</option>
-              <option value="BENEFICIARY">Beneficiary</option>
+              <option value="DEPOSITOR">Депонент</option>
+              <option value="BENEFICIARY">Бенефициар</option>
             </select>
           </div>
 
@@ -114,14 +114,14 @@ export default function RegisterPage() {
             disabled={submitting}
             className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
           >
-            {submitting ? 'Creating account...' : 'Create account'}
+            {submitting ? 'Создание...' : 'Создать аккаунт'}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account?{' '}
+          Уже есть аккаунт?{' '}
           <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-            Sign in
+            Войти
           </Link>
         </p>
       </div>

@@ -21,13 +21,13 @@ export default function OperatorPage() {
 }
 
 const STATUS_FILTERS = [
-  { value: '', label: 'All Deals' },
-  { value: 'DISPUTED', label: 'Disputed' },
-  { value: 'AWAITING_REVIEW', label: 'Awaiting Review' },
-  { value: 'AWAITING_FULFILLMENT', label: 'Awaiting Fulfillment' },
-  { value: 'FUNDED', label: 'Funded' },
-  { value: 'RELEASING', label: 'Releasing' },
-  { value: 'REFUNDING', label: 'Refunding' },
+  { value: '', label: 'Все сделки' },
+  { value: 'DISPUTED', label: 'Споры' },
+  { value: 'AWAITING_REVIEW', label: 'Ожидают проверки' },
+  { value: 'AWAITING_FULFILLMENT', label: 'Ожидают исполнения' },
+  { value: 'FUNDED', label: 'Оплаченные' },
+  { value: 'RELEASING', label: 'Выпуск средств' },
+  { value: 'REFUNDING', label: 'Возврат средств' },
 ];
 
 function OperatorContent() {
@@ -56,7 +56,7 @@ function OperatorContent() {
   if (!isAllowed) {
     return (
       <div className="rounded-lg bg-red-50 p-6 text-center text-sm text-red-700">
-        Access denied. Operator or Administrator role required.
+        Доступ запрещён. Требуется роль оператора или администратора.
       </div>
     );
   }
@@ -65,7 +65,6 @@ function OperatorContent() {
     try {
       await apiDealAction(dealId, 'resolve', { resolution });
       setResolveModal(null);
-      // Refresh
       const [d, s] = await Promise.all([
         apiOperatorListDeals(statusFilter || undefined),
         apiOperatorGetStats(),
@@ -79,19 +78,19 @@ function OperatorContent() {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Operator Panel</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-900">Панель оператора</h1>
 
       {stats && (
         <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard label="Total Deals" value={stats.total} />
-          <StatCard label="Active" value={stats.active} color="blue" />
-          <StatCard label="Disputed" value={stats.disputed} color="red" />
-          <StatCard label="Completed" value={stats.completed} color="green" />
+          <StatCard label="Всего сделок" value={stats.total} />
+          <StatCard label="Активных" value={stats.active} color="blue" />
+          <StatCard label="Споров" value={stats.disputed} color="red" />
+          <StatCard label="Завершённых" value={stats.completed} color="green" />
         </div>
       )}
 
       <div className="mb-4 flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">Filter:</label>
+        <label className="text-sm font-medium text-gray-700">Фильтр:</label>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -111,18 +110,18 @@ function OperatorContent() {
         <div className="rounded-lg bg-red-50 p-6 text-center text-sm text-red-700">{error}</div>
       ) : deals.length === 0 ? (
         <div className="rounded-lg bg-white p-12 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No deals found</p>
+          <p className="text-sm text-gray-500">Сделки не найдены</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Title</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Amount</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Created</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Название</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Сумма</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Статус</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Дата</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Действия</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -134,11 +133,11 @@ function OperatorContent() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {deal.amount.toLocaleString()} {deal.currency}
+                    {deal.amount.toLocaleString('ru-RU')} {deal.currency}
                   </td>
                   <td className="px-4 py-3"><DealStatusBadge status={deal.status} /></td>
                   <td className="px-4 py-3 text-sm text-gray-500">
-                    {new Date(deal.createdAt).toLocaleDateString()}
+                    {new Date(deal.createdAt).toLocaleDateString('ru-RU')}
                   </td>
                   <td className="px-4 py-3">
                     {deal.status === 'DISPUTED' && (
@@ -146,7 +145,7 @@ function OperatorContent() {
                         onClick={() => setResolveModal({ dealId: deal.id, title: deal.title })}
                         className="rounded-md bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700 hover:bg-orange-200"
                       >
-                        Resolve Dispute
+                        Разрешить спор
                       </button>
                     )}
                   </td>
@@ -160,28 +159,28 @@ function OperatorContent() {
       {resolveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Resolve Dispute</h3>
-            <p className="mb-4 text-sm text-gray-600">Deal: {resolveModal.title}</p>
-            <p className="mb-4 text-sm text-gray-600">Choose resolution:</p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">Разрешение спора</h3>
+            <p className="mb-4 text-sm text-gray-600">Сделка: {resolveModal.title}</p>
+            <p className="mb-4 text-sm text-gray-600">Выберите решение:</p>
             <div className="flex gap-3">
               <button
                 onClick={() => handleResolve(resolveModal.dealId, 'RELEASE')}
                 className="flex-1 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
               >
-                Release Funds to Beneficiary
+                Выплатить бенефициару
               </button>
               <button
                 onClick={() => handleResolve(resolveModal.dealId, 'REFUND')}
                 className="flex-1 rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
               >
-                Refund to Depositor
+                Вернуть депоненту
               </button>
             </div>
             <button
               onClick={() => setResolveModal(null)}
               className="mt-3 w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
-              Cancel
+              Отмена
             </button>
           </div>
         </div>

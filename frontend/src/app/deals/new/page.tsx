@@ -38,7 +38,7 @@ function CreateDealContent() {
       });
       router.push(`/deals/${deal.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create deal');
+      setError(err instanceof Error ? err.message : 'Не удалось создать сделку');
     } finally {
       setSubmitting(false);
     }
@@ -47,8 +47,8 @@ function CreateDealContent() {
   return (
     <>
       <div className="mb-6">
-        <Link href="/deals" className="text-sm text-gray-500 hover:text-gray-700">&larr; Back to deals</Link>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">Create New Deal</h1>
+        <Link href="/deals" className="text-sm text-gray-500 hover:text-gray-700">&larr; К списку сделок</Link>
+        <h1 className="mt-2 text-2xl font-bold text-gray-900">Создание новой сделки</h1>
       </div>
 
       <div className="mx-auto max-w-2xl">
@@ -59,7 +59,7 @@ function CreateDealContent() {
 
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Title <span className="text-red-500">*</span>
+              Название <span className="text-red-500">*</span>
             </label>
             <input
               id="title"
@@ -68,13 +68,13 @@ function CreateDealContent() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="e.g. Website Development Project"
+              placeholder="Например: Разработка веб-сайта"
             />
           </div>
 
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
+              Описание
             </label>
             <textarea
               id="description"
@@ -82,14 +82,14 @@ function CreateDealContent() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Describe the deal terms..."
+              placeholder="Опишите условия сделки..."
             />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                Amount <span className="text-red-500">*</span>
+                Сумма <span className="text-red-500">*</span>
               </label>
               <input
                 id="amount"
@@ -105,7 +105,7 @@ function CreateDealContent() {
             </div>
             <div>
               <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
-                Currency
+                Валюта
               </label>
               <select
                 id="currency"
@@ -122,7 +122,7 @@ function CreateDealContent() {
 
           <div>
             <label htmlFor="beneficiaryId" className="block text-sm font-medium text-gray-700">
-              Beneficiary ID <span className="text-red-500">*</span>
+              ID бенефициара <span className="text-red-500">*</span>
             </label>
             <input
               id="beneficiaryId"
@@ -131,10 +131,10 @@ function CreateDealContent() {
               value={beneficiaryId}
               onChange={(e) => setBeneficiaryId(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="UUID of the beneficiary user"
+              placeholder="UUID бенефициара"
             />
             <p className="mt-1 text-xs text-gray-400">
-              The beneficiary must be a registered user. Enter their User ID.
+              Бенефициар должен быть зарегистрированным пользователем. Введите его ID.
             </p>
           </div>
 
@@ -144,13 +144,13 @@ function CreateDealContent() {
               disabled={submitting}
               className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {submitting ? 'Creating...' : 'Create Deal'}
+              {submitting ? 'Создание...' : 'Создать сделку'}
             </button>
             <Link
               href="/deals"
               className="rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              Cancel
+              Отмена
             </Link>
           </div>
         </form>
